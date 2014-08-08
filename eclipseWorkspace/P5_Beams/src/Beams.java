@@ -61,10 +61,11 @@ public class Beams extends PApplet {
 
 			// Analyze Camera Feed Here
 			// ...
-			removeRedFilter.updateWith(rgbCam);
-			outputImg = removeRedFilter.getImage();
+
 			// create new images from custom filters
 			// ...
+			outputImg = removeRedFilter.getFilteredImage(rgbCam);
+
 		}
 
 		// draw filtered image

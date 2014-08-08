@@ -4,11 +4,9 @@ public class Filter {
 	Filter() {
 	};
 
-	void updateWith() {
+	PImage getFilteredImage() {
 		// Can add timer here ...
-	}
-
-	PImage getImage() {
 		return null;
 	}
+
 }

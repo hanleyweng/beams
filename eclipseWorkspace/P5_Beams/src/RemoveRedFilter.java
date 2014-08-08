@@ -6,7 +6,12 @@ public class RemoveRedFilter extends Filter {
 	RemoveRedFilter() {
 	};
 
-	void updateWith(PImage image) {
+	/**
+	 * 
+	 * @param image - the image to subtract red from
+	 * @return an image with no red
+	 */
+	PImage getFilteredImage(PImage image) {
 		this.img = image.get(); // must use get, else the original image is manipulated directly. (since this is a pointer)
 
 		int width = img.width;
@@ -36,9 +41,9 @@ public class RemoveRedFilter extends Filter {
 		}
 		// Update Pixels
 		img.updatePixels();
-	}
-
-	PImage getImage() {
+		
+		// Return img
 		return img;
 	}
+
 }
