@@ -20,6 +20,7 @@ public class Beams extends PApplet {
 	int rgbCamFps = 30;
 
 	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
+	SlitScan slitScan = new SlitScan();
 
 	PImage outputImg;
 
@@ -64,7 +65,8 @@ public class Beams extends PApplet {
 
 			// create new images from custom filters
 			// ...
-			outputImg = removeRedFilter.getFilteredImage(rgbCam);
+			// outputImg = removeRedFilter.getFilteredImage(rgbCam);
+			outputImg = slitScan.getFilteredImage(rgbCam);
 
 		}
 
