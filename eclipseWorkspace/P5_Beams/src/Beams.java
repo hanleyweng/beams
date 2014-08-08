@@ -18,6 +18,10 @@ public class Beams extends PApplet {
 	int rgbCamWidth = 640;
 	int rgbCamHeight = 480;
 	int rgbCamFps = 30;
+	
+	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
+	
+	PImage outputImg;
 
 	public void setup() {
 		size(swidth, sheight);
@@ -43,6 +47,8 @@ public class Beams extends PApplet {
 
 		// Start capturing the images from the camera
 		rgbCam.start();
+		
+		// INITIALIZE FILTERS
 	}
 
 	public void draw() {
@@ -52,9 +58,21 @@ public class Beams extends PApplet {
 		// Read rgbCam
 		if (rgbCam.available() == true) {
 			rgbCam.read();
+
+			// Analyze Camera Feed Here
+			// ...
+			removeRedFilter.updateWith(rgbCam);
+			outputImg = removeRedFilter.getImage();
+			// create new images from custom filters
+			// ...
 		}
-		// Draw rgbCam
+
+		// draw filtered image
 		set(0, 0, rgbCam); // faster way of drawing (non-manipulated) image
+		// ...
+
+		// add any inbuilt p5 filters here
+		// ...
 	}
 
 }
