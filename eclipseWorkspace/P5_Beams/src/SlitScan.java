@@ -20,7 +20,7 @@ public class SlitScan extends Filter {
 
 	PImage getFilteredImage(PImage srcImg) {
 
-		img = srcImg.get();
+		img = this.copyImage(srcImg);
 
 		int width = img.width;
 		int heightOfRow = 10; // in pixels
@@ -47,7 +47,7 @@ public class SlitScan extends Filter {
 		img.updatePixels();
 
 		// Store srcImg in prvFrames
-		prvFrames.add(srcImg.get());
+		prvFrames.add(this.copyImage(srcImg));
 
 		// Clear prvFrames from memory
 		if (prvFrames.size() > maxFrames) {

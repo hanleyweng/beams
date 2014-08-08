@@ -12,7 +12,7 @@ public class RemoveRedFilter extends Filter {
 	 * @return an image with no red
 	 */
 	PImage getFilteredImage(PImage image) {
-		this.img = image.get(); // must use get, else the original image is manipulated directly. (since this is a pointer)
+		this.img = this.copyImage(image); // must use get, else the original image is manipulated directly. (since this is a pointer)
 
 		int width = img.width;
 		int height = img.height;
