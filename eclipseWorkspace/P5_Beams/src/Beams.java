@@ -65,8 +65,8 @@ public class Beams extends PApplet {
 
 			// create new images from custom filters
 			// ...
-			// outputImg = removeRedFilter.getFilteredImage(rgbCam);
-			outputImg = slitScan.getFilteredImage(rgbCam);
+			outputImg = removeRedFilter.getFilteredImage(rgbCam);
+			outputImg = slitScan.getFilteredImage(outputImg);
 
 		}
 
