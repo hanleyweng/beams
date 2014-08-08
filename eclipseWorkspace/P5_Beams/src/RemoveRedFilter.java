@@ -1,5 +1,3 @@
-import java.awt.Color;
-
 import processing.core.PImage;
 
 public class RemoveRedFilter extends Filter {
@@ -8,15 +6,15 @@ public class RemoveRedFilter extends Filter {
 	RemoveRedFilter() {
 	};
 
-	void updateWith(PImage img) {
-		this.img = img;
-		
+	void updateWith(PImage image) {
+		this.img = image.get(); // must use get, else the original image is manipulated directly. (since this is a pointer)
+
 		int width = img.width;
 		int height = img.height;
-		
+
 		// Load Pixels
 		img.loadPixels();
-		
+
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int index = x + y * width;
@@ -27,10 +25,10 @@ public class RemoveRedFilter extends Filter {
 				int currR = (currColor >> 16) & 0xFF;
 				int currG = (currColor >> 8) & 0xFF;
 				int currB = currColor & 0xFF;
-				
+
 				// take out red
 				currR = 0;
-				
+
 				// set new color of pixel
 				img.pixels[index] = 0xff000000 | (currR << 16) | (currG << 8) | currB;
 

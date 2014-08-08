@@ -18,9 +18,9 @@ public class Beams extends PApplet {
 	int rgbCamWidth = 640;
 	int rgbCamHeight = 480;
 	int rgbCamFps = 30;
-	
+
 	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
-	
+
 	PImage outputImg;
 
 	public void setup() {
@@ -47,7 +47,7 @@ public class Beams extends PApplet {
 
 		// Start capturing the images from the camera
 		rgbCam.start();
-		
+
 		// INITIALIZE FILTERS
 	}
 
@@ -68,7 +68,9 @@ public class Beams extends PApplet {
 		}
 
 		// draw filtered image
-		set(0, 0, rgbCam); // faster way of drawing (non-manipulated) image
+		if (outputImg != null) {
+			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
+		}
 		// ...
 
 		// add any inbuilt p5 filters here
