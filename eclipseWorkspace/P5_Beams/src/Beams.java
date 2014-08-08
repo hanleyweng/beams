@@ -2,11 +2,7 @@ import processing.core.*; // This is from Processing2.2.1
 
 import processing.video.*;
 
-// TODO: Add Video
-
 // TODO: Add Analysis'
-
-// TODO: Add Filters
 
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
@@ -49,7 +45,6 @@ public class Beams extends PApplet {
 		// Start capturing the images from the camera
 		rgbCam.start();
 
-		// INITIALIZE FILTERS
 	}
 
 	public void draw() {
@@ -64,7 +59,6 @@ public class Beams extends PApplet {
 			// ...
 
 			// create new images from custom filters
-			// ...
 			outputImg = removeRedFilter.getFilteredImage(rgbCam);
 			outputImg = slitScan.getFilteredImage(outputImg);
 
@@ -74,7 +68,6 @@ public class Beams extends PApplet {
 		if (outputImg != null) {
 			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
 		}
-		// ...
 
 		// add any inbuilt p5 filters here
 		// ...
