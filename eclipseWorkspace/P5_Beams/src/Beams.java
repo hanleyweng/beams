@@ -14,13 +14,47 @@ public class Beams extends PApplet {
 	int swidth = 800;
 	int sheight = 600;
 
+	Capture rgbCam;
+	int rgbCamWidth = 640;
+	int rgbCamHeight = 480;
+	int rgbCamFps = 30;
+
 	public void setup() {
 		size(swidth, sheight);
 		colorMode(HSB, 100);
+
+		// INITIALIZE CAMERA
+		String[] cameras = Capture.list();
+		if (cameras == null) {
+			println("Failed to retrieve the list of available cameras, will try the default...");
+			rgbCam = new Capture(this, 640, 480);
+		}
+		if (cameras.length == 0) {
+			println("There are no cameras available for capture.");
+			exit();
+		} else {
+			println("Available cameras:");
+			for (int i = 0; i < cameras.length; i++) {
+				println(cameras[i]);
+			}
+		}
+		// Initialize Camera
+		rgbCam = new Capture(this, rgbCamWidth, rgbCamHeight, rgbCamFps);
+
+		// Start capturing the images from the camera
+		rgbCam.start();
 	}
 
 	public void draw() {
+		// Draw BG Circle to represent frames are not yet available to render
 		ellipse(swidth / 2, sheight / 2, 50, 50);
+
+		// Read rgbCam
+		if (rgbCam.available() == true) {
+			rgbCam.read();
+		}
+		// Draw rgbCam
+		set(0, 0, rgbCam); // faster way of drawing (non-manipulated) image
 	}
 
 }
