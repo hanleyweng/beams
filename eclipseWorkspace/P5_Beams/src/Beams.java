@@ -146,6 +146,7 @@ public class Beams extends PApplet {
 			// outputImg = slitScan.getFilteredImage(outputImg);
 
 			// // Drawing a blend of depth and color img
+			// TODO: Create filter to blend images together.
 			// pushStyle();
 			// image(depthImg, 0, 0);
 			// tint(255, 100);
@@ -153,7 +154,7 @@ public class Beams extends PApplet {
 			// popStyle();
 
 			// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
-			outputImg = zaxisContours.getFilteredImage(depthImg, colorImg);
+			outputImg = zaxisContours.getFilteredImage(depthImg);
 
 			image(outputImg, 0, 0);
 
