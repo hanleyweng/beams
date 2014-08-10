@@ -37,7 +37,7 @@ public class Beams extends PApplet {
 
 	@Override
 	public void setup() {
-		size(swidth, sheight);
+		size(swidth, sheight, OPENGL);
 		colorMode(HSB, 100);
 
 		// INITIALIZE CHOSEN CAMERA
