@@ -11,13 +11,13 @@ import codeanticode.syphon.*;
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
 
-	static final String INPUT_MODE_INTERNAL_CAMERA = "INPUT_MODE_INTERNAL_CAMERA";
-	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
-
-	String INPUT_MODE = INPUT_MODE_KINECT;
+	String INPUT_MODE = INPUT_MODE_INTERNAL_CAMERA;
 	static final boolean SEND_TO_SYPHON = true;
 
 	// ///////////////////////////////////////////////////////////////////////////
+
+	static final String INPUT_MODE_INTERNAL_CAMERA = "INPUT_MODE_INTERNAL_CAMERA";
+	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 
 	int swidth = 800;
 	int sheight = 600;
@@ -37,14 +37,13 @@ public class Beams extends PApplet {
 	ScaledIn scaledIn = new ScaledIn();
 
 	PImage outputImg;
-	
+
 	// Output to Syphon
 	SyphonServer syphonServer;
 
 	@Override
 	public void setup() {
 		size(swidth, sheight, OPENGL);
-		colorMode(HSB, 100);
 
 		// INITIALIZE CHOSEN CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
@@ -55,7 +54,7 @@ public class Beams extends PApplet {
 		}
 		
 		// Create syphon server to send frames out.
-		if(SEND_TO_SYPHON) {
+		if (SEND_TO_SYPHON) {
 			syphonServer = new SyphonServer(this, "BeamsSyphon");
 		}
 	}
@@ -162,8 +161,8 @@ public class Beams extends PApplet {
 
 		// add any inbuilt p5 filters here
 		// ...
-		
-		if(SEND_TO_SYPHON) {
+
+		if (SEND_TO_SYPHON) {
 			if (outputImg != null) {
 				syphonServer.sendImage(outputImg);
 			}
