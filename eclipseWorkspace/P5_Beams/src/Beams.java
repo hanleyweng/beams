@@ -38,7 +38,6 @@ public class Beams extends PApplet {
 	@Override
 	public void setup() {
 		size(swidth, sheight);
-		colorMode(HSB, 100);
 
 		// INITIALIZE CHOSEN CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
@@ -89,6 +88,10 @@ public class Beams extends PApplet {
 
 		// enable ir generation
 		kinect.enableRGB();
+
+		// align depth data to image data
+		kinect.alternativeViewPointDepthToImage();
+		kinect.setDepthColorSyncEnabled(true);
 	}
 
 	@Override
@@ -111,6 +114,14 @@ public class Beams extends PApplet {
 				outputImg = slitScan.getFilteredImage(outputImg);
 				// outputImg = scaledIn.getFilteredImage(this, outputImg);
 
+				// draw filtered image
+				if (outputImg != null) {
+					set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
+				}
+
+				// add any inbuilt p5 filters here
+				// ...
+
 			}
 		}
 
@@ -118,20 +129,18 @@ public class Beams extends PApplet {
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			kinect.update();
 
-			outputImg = kinect.depthImage();
+			PImage depthImg = kinect.depthImage();
+			// outputImg = kinect.rgbImage();
+			PImage colorImg = kinect.rgbImage();
+			// outputImg = slitScan.getFilteredImage(outputImg);
 
-			outputImg = slitScan.getFilteredImage(outputImg);
+			// Drawing a blend of depth and color img
+			pushStyle();
+			image(depthImg, 0, 0);
+			tint(255, 100);
+			image(colorImg, 0, 0);
+			popStyle();
 		}
-
-		// ///////////////////////
-
-		// draw filtered image
-		if (outputImg != null) {
-			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
-		}
-
-		// add any inbuilt p5 filters here
-		// ...
 
 	}
 
