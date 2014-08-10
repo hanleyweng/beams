@@ -4,6 +4,8 @@ import processing.video.*;
 
 import SimpleOpenNI.*;
 
+import codeanticode.syphon.*;
+
 // TODO: Add Analysis'
 
 @SuppressWarnings("serial")
@@ -13,6 +15,7 @@ public class Beams extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 
 	String INPUT_MODE = INPUT_MODE_KINECT;
+	static final boolean SEND_TO_SYPHON = true;
 
 	// ///////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +37,9 @@ public class Beams extends PApplet {
 	ScaledIn scaledIn = new ScaledIn();
 
 	PImage outputImg;
+	
+	// Output to Syphon
+	SyphonServer syphonServer;
 
 	@Override
 	public void setup() {
@@ -47,7 +53,11 @@ public class Beams extends PApplet {
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			this.setupKinectCamera();
 		}
-
+		
+		// Create syphon server to send frames out.
+		if(SEND_TO_SYPHON) {
+			syphonServer = new SyphonServer(this, "BeamsSyphon");
+		}
 	}
 
 	void setupInternalCamera() {
@@ -132,6 +142,12 @@ public class Beams extends PApplet {
 
 		// add any inbuilt p5 filters here
 		// ...
+		
+		if(SEND_TO_SYPHON) {
+			if (outputImg != null) {
+				syphonServer.sendImage(outputImg);
+			}
+		}
 
 	}
 
