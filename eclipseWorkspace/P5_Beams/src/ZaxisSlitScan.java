@@ -6,7 +6,7 @@ public class ZaxisSlitScan extends Filter {
 
 	ArrayList<PImage> prvRgbFrames = new ArrayList<PImage>();
 	ArrayList<PImage> prvDepthFrames = new ArrayList<PImage>();
-	int maxFrames = 40;
+	int maxFrames = 30;
 
 	ZaxisSlitScan() {
 	};
@@ -38,6 +38,9 @@ public class ZaxisSlitScan extends Filter {
 			PImage curRgbImage = prvRgbFrames.get(i);
 			PImage curDepthImage = prvDepthFrames.get(i);
 
+			curRgbImage.loadPixels();
+			curDepthImage.loadPixels();
+
 			float grayGap = 255f / prvRgbFrames.size();
 			float maxGrayValue = grayGap * i;
 			float minGrayValue = maxGrayValue - grayGap;
@@ -50,8 +53,13 @@ public class ZaxisSlitScan extends Filter {
 					int index = x + y * width;
 
 					// set curGrayValue of pixel to simple value of red
-					// int currColor = curDepthImage
-					// int curGrayValue = (currColor >> 16) & 0xFF
+					int currColor = curDepthImage.pixels[index];
+					int curGrayValue = (currColor >> 16) & 0xFF;
+
+					if ((curGrayValue > minGrayValue) && (curGrayValue < maxGrayValue)) {
+						// outputImg.pixels[index] = curRgbImage.pixels[index];
+						outputImg.pixels[index] = curDepthImage.pixels[index];
+					}
 				}
 			}
 		}
@@ -60,5 +68,4 @@ public class ZaxisSlitScan extends Filter {
 
 		return outputImg;
 	}
-
 }

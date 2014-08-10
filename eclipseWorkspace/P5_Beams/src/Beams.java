@@ -11,7 +11,7 @@ import codeanticode.syphon.*;
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
 
-	String INPUT_MODE = INPUT_MODE_INTERNAL_CAMERA;
+	String INPUT_MODE = INPUT_MODE_KINECT;
 	static final boolean SEND_TO_SYPHON = true;
 
 	// ///////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,8 @@ public class Beams extends PApplet {
 	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
 	SlitScan slitScan = new SlitScan();
 	ScaledIn scaledIn = new ScaledIn();
+	ZaxisSlitScan zaxisSlit = new ZaxisSlitScan();
+	ZaxisContours zaxisContours = new ZaxisContours();
 
 	PImage outputImg;
 
@@ -52,7 +54,7 @@ public class Beams extends PApplet {
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			this.setupKinectCamera();
 		}
-		
+
 		// Create syphon server to send frames out.
 		if (SEND_TO_SYPHON) {
 			syphonServer = new SyphonServer(this, "BeamsSyphon");
@@ -140,16 +142,21 @@ public class Beams extends PApplet {
 			kinect.update();
 
 			PImage depthImg = kinect.depthImage();
-			// outputImg = kinect.rgbImage();
 			PImage colorImg = kinect.rgbImage();
 			// outputImg = slitScan.getFilteredImage(outputImg);
 
-			// Drawing a blend of depth and color img
-			pushStyle();
-			image(depthImg, 0, 0);
-			tint(255, 100);
-			image(colorImg, 0, 0);
-			popStyle();
+			// // Drawing a blend of depth and color img
+			// pushStyle();
+			// image(depthImg, 0, 0);
+			// tint(255, 100);
+			// image(colorImg, 0, 0);
+			// popStyle();
+
+			// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
+			outputImg = zaxisContours.getFilteredImage(depthImg, colorImg);
+
+			image(outputImg, 0, 0);
+
 		}
 
 		// ///////////////////////
