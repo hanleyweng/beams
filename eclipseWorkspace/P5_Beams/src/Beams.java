@@ -2,6 +2,8 @@ import processing.core.*; // This is from Processing2.2.1
 
 import processing.video.*;
 
+import SimpleOpenNI.*;
+
 // TODO: Add Analysis'
 
 @SuppressWarnings("serial")
@@ -14,6 +16,8 @@ public class Beams extends PApplet {
 	int rgbCamWidth = 640;
 	int rgbCamHeight = 480;
 	int rgbCamFps = 30;
+	
+	SimpleOpenNI kinect;
 
 	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
 	SlitScan slitScan = new SlitScan();
@@ -63,8 +67,7 @@ public class Beams extends PApplet {
 			outputImg = rgbCam;
 			// outputImg = removeRedFilter.getFilteredImage(outputImg);
 			outputImg = slitScan.getFilteredImage(outputImg);
-			outputImg = scaledIn.getFilteredImage(this, outputImg);
-			
+			// outputImg = scaledIn.getFilteredImage(this, outputImg);
 
 		}
 
