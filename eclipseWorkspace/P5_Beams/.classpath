@@ -15,5 +15,15 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/SimpleOpenNI/library"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/syphon/Syphon.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/syphon"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/syphon/jsyphon.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/syphon"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

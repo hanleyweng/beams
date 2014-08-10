@@ -4,6 +4,8 @@ import processing.video.*;
 
 import SimpleOpenNI.*;
 
+import codeanticode.syphon.*;
+
 // TODO: Add Analysis'
 
 @SuppressWarnings("serial")
@@ -13,6 +15,7 @@ public class Beams extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 
 	String INPUT_MODE = INPUT_MODE_KINECT;
+	static final boolean SEND_TO_SYPHON = true;
 
 	// ///////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +37,13 @@ public class Beams extends PApplet {
 	ScaledIn scaledIn = new ScaledIn();
 
 	PImage outputImg;
+	
+	// Output to Syphon
+	SyphonServer syphonServer;
 
 	@Override
 	public void setup() {
-		size(swidth, sheight);
+		size(swidth, sheight, OPENGL);
 		colorMode(HSB, 100);
 
 		// INITIALIZE CHOSEN CAMERA
@@ -47,7 +53,11 @@ public class Beams extends PApplet {
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			this.setupKinectCamera();
 		}
-
+		
+		// Create syphon server to send frames out.
+		if(SEND_TO_SYPHON) {
+			syphonServer = new SyphonServer(this, "BeamsSyphon");
+		}
 	}
 
 	void setupInternalCamera() {
@@ -89,6 +99,10 @@ public class Beams extends PApplet {
 
 		// enable ir generation
 		kinect.enableRGB();
+
+		// align depth data to image data
+		kinect.alternativeViewPointDepthToImage();
+		kinect.setDepthColorSyncEnabled(true);
 	}
 
 	@Override
@@ -111,6 +125,14 @@ public class Beams extends PApplet {
 				outputImg = slitScan.getFilteredImage(outputImg);
 				// outputImg = scaledIn.getFilteredImage(this, outputImg);
 
+				// draw filtered image
+				if (outputImg != null) {
+					set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
+				}
+
+				// add any inbuilt p5 filters here
+				// ...
+
 			}
 		}
 
@@ -118,9 +140,17 @@ public class Beams extends PApplet {
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			kinect.update();
 
-			outputImg = kinect.depthImage();
+			PImage depthImg = kinect.depthImage();
+			// outputImg = kinect.rgbImage();
+			PImage colorImg = kinect.rgbImage();
+			// outputImg = slitScan.getFilteredImage(outputImg);
 
-			outputImg = slitScan.getFilteredImage(outputImg);
+			// Drawing a blend of depth and color img
+			pushStyle();
+			image(depthImg, 0, 0);
+			tint(255, 100);
+			image(colorImg, 0, 0);
+			popStyle();
 		}
 
 		// ///////////////////////
@@ -132,6 +162,12 @@ public class Beams extends PApplet {
 
 		// add any inbuilt p5 filters here
 		// ...
+		
+		if(SEND_TO_SYPHON) {
+			if (outputImg != null) {
+				syphonServer.sendImage(outputImg);
+			}
+		}
 
 	}
 
