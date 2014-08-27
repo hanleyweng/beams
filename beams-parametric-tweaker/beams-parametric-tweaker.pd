@@ -1,0 +1,45 @@
+#N canvas 371 299 751 508 10;
+#X declare -lib mrpeach;
+#X obj 34 -49 hsl 128 15 1 20 0 0 heightOfRow-slider-value empty heightOfRow
+-2 -8 0 10 -262144 -1 -1 0 1;
+#N canvas 717 629 385 355 osc-connection 0;
+#X obj 61 177 udpsend;
+#X obj 151 39 loadbang;
+#X msg 142 120 disconnect;
+#X obj 57 107 packOSC;
+#X obj 59 229 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1 -1
+1 1;
+#X obj 57 74 r toOSC;
+#X msg 143 88 connect 127.0.0.1 12345;
+#X obj 44 15 import mrpeach;
+#X obj 211 39 inlet;
+#X connect 0 0 4 0;
+#X connect 1 0 6 0;
+#X connect 2 0 0 0;
+#X connect 3 0 0 0;
+#X connect 5 0 3 0;
+#X connect 6 0 0 0;
+#X connect 8 0 6 0;
+#X restore 30 -132 pd osc-connection;
+#X msg 30 -174 bang establish connection;
+#X obj 31 49 osc-out heightOfRow;
+#X obj 31 -14 int;
+#X floatatom 31 18 8 0 0 0 - - -;
+#X obj 254 -49 hsl 128 15 1 70 0 0 heightOfRow-slider-value empty testInt1
+-2 -8 0 10 -262144 -1 -1 0 1;
+#X obj 251 -14 int;
+#X floatatom 251 18 8 0 0 0 - - -;
+#X obj 251 48 osc-out testInt1;
+#X text 196 -175 click to reconnect to running app;
+#X text 29 -235 Parametric Tweaker for the Chippendale BEAMS Festival
+2014;
+#X text 29 -219 by Pier;
+#X text 251 -89 For Kinect Zaxis contours;
+#X text 30 -92 For 2D slit scan;
+#X connect 0 0 4 0;
+#X connect 2 0 1 0;
+#X connect 4 0 5 0;
+#X connect 5 0 3 0;
+#X connect 6 0 7 0;
+#X connect 7 0 8 0;
+#X connect 8 0 9 0;
