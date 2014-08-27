@@ -25,5 +25,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/syphon"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/oscP5/oscP5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
