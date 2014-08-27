@@ -13,8 +13,10 @@ public class SlitScan extends Filter {
 	PImage img;
 
 	ArrayList<PImage> prvFrames = new ArrayList<PImage>();
+	int heightOfRow; // in pixels
+	
 	int maxFrames;
-
+	
 	SlitScan() {
 	};
 
@@ -23,9 +25,15 @@ public class SlitScan extends Filter {
 		img = this.copyImage(srcImg);
 
 		int width = img.width;
-		int heightOfRow = 10; // in pixels
+		int newHeightOfRow = OscHandler.heightOfRow;
+		// if we have a newHeightOfRow,
+		// set & clear prvFrames, otherwise array out of bounds
+		if(newHeightOfRow != heightOfRow) {
+			prvFrames.clear();
+			heightOfRow = newHeightOfRow;
+		}
 		maxFrames = img.height / heightOfRow;
-
+		
 		img.loadPixels();
 
 		// Get every image

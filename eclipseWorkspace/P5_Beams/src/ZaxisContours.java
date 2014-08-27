@@ -25,7 +25,7 @@ public class ZaxisContours extends Filter {
 				int currColor = depthImg.pixels[index];
 				int curGrayValue = (currColor >> 16) & 0xFF;
 
-				if (curGrayValue % 7 == 0) {
+				if (curGrayValue % OscHandler.testInt1 == 0) {
 					int newColor = 0xff000000 | (255 << 16) | (0 << 8) | 0;
 					outputImg.pixels[index] = newColor;
 				}

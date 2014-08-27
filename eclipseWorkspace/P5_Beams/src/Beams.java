@@ -11,9 +11,12 @@ import codeanticode.syphon.*;
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
 
+	// OPTIONS!
 	String INPUT_MODE = INPUT_MODE_KINECT;
+	static final boolean RECEIVE_OSC = true; // start OSC Server in OscHandler class.
 	static final boolean SEND_TO_SYPHON = true;
 
+	
 	// ///////////////////////////////////////////////////////////////////////////
 
 	static final String INPUT_MODE_INTERNAL_CAMERA = "INPUT_MODE_INTERNAL_CAMERA";
@@ -40,6 +43,9 @@ public class Beams extends PApplet {
 
 	PImage outputImg;
 
+	// Handle osc messages from PureData.
+	OscHandler oscHandler;
+	
 	// Output to Syphon
 	SyphonServer syphonServer;
 
@@ -53,6 +59,10 @@ public class Beams extends PApplet {
 		}
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			this.setupKinectCamera();
+		}
+		
+		if (RECEIVE_OSC) {
+			oscHandler = new OscHandler();
 		}
 
 		// Create syphon server to send frames out.
@@ -110,7 +120,7 @@ public class Beams extends PApplet {
 	public void draw() {
 		// Draw BG Circle to represent frames are not yet available to render
 		ellipse(swidth / 2, sheight / 2, 50, 50);
-
+		
 		// DRAW FOR INTERNAL CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
 			// Read rgbCam
