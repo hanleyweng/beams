@@ -18,9 +18,6 @@ public class BackgroundSubtraction extends PApplet {
 
 	// OPTIONS!
 	String INPUT_MODE = INPUT_MODE_MOVIE;
-	static final boolean RECEIVE_OSC = true; // start OSC Server in OscHandler class.
-	static final boolean SEND_TO_SYPHON = true;
-
 	
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -43,22 +40,6 @@ public class BackgroundSubtraction extends PApplet {
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
 
-	// Filters
-	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
-	DepthThresholder depthThresholder = new DepthThresholder();
-	SlitScan slitScan = new SlitScan();
-	ScaledIn scaledIn = new ScaledIn();
-	ZaxisSlitScan zaxisSlit = new ZaxisSlitScan();
-	ZaxisContours zaxisContours = new ZaxisContours();
-
-	PImage outputImg;
-
-	// Handle osc messages from PureData.
-	OscHandler oscHandler;
-	
-	// Output to Syphon
-	SyphonServer syphonServer;
-
 	@Override
 	public void setup() {
 		size(swidth, sheight, OPENGL);
@@ -70,15 +51,6 @@ public class BackgroundSubtraction extends PApplet {
 			this.setupKinectCamera();
 		} else if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			this.setupMovie();
-		}
-		
-		if (RECEIVE_OSC) {
-			oscHandler = new OscHandler();
-		}
-
-		// Create syphon server to send frames out.
-		if (SEND_TO_SYPHON) {
-			syphonServer = new SyphonServer(this, "BeamsSyphon");
 		}
 	}
 
@@ -137,80 +109,6 @@ public class BackgroundSubtraction extends PApplet {
 		// Draw BG Circle to represent frames are not yet available to render
 		ellipse(swidth / 2, sheight / 2, 50, 50);
 		
-		// DRAW FOR INTERNAL CAMERA
-		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
-			// Read rgbCam
-			if (rgbCam.available() == true) {
-				rgbCam.read();
-
-				// Analyze Camera Feed Here
-				// ...
-
-				// create new images from custom filters
-				outputImg = rgbCam;
-				// outputImg = removeRedFilter.getFilteredImage(outputImg);
-				outputImg = slitScan.getFilteredImage(outputImg);
-				// outputImg = scaledIn.getFilteredImage(this, outputImg);
-
-				// draw filtered image
-				if (outputImg != null) {
-					set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
-				}
-
-				// add any inbuilt p5 filters here
-				// ...
-
-			}
-		}
-
-		// DRAW FOR KINECT CAMERA
-		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
-			kinect.update();
-
-			PImage depthImg = kinect.depthImage();
-			PImage colorImg = kinect.rgbImage();
-			// outputImg = slitScan.getFilteredImage(outputImg);
-
-			// // Drawing a blend of depth and color img
-			// TODO: Create filter to blend images together.
-			// pushStyle();
-			// image(depthImg, 0, 0);
-			// tint(255, 100);
-			// image(colorImg, 0, 0);
-			// popStyle();
-
-			// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
-			outputImg = zaxisContours.getFilteredImage(depthImg);
-
-			image(outputImg, 0, 0);
-
-		}
-		
-		// DRAW FOR MOVIE
-		if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
-			if (mov.available()) {
-				mov.read();
-			}
-			outputImg = depthThresholder.getFilteredImage(mov);
-			outputImg = zaxisContours.getFilteredImage(outputImg);
-			image(outputImg, 0, 0);
-		}
-
-		// ///////////////////////
-
-		// draw filtered image
-		if (outputImg != null) {
-			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
-		}
-
-		// add any inbuilt p5 filters here
-		// ...
-
-		if (SEND_TO_SYPHON) {
-			if (outputImg != null) {
-				syphonServer.sendImage(outputImg);
-			}
-		}
 
 	}
 
