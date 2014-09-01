@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/core2.2.1/core.jar"/>
+	<classpathentry kind="lib" path="lib/core2.2.1/gluegen-rt-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/core2.2.1/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/core2.2.1/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/core2.2.1/jogl-all.jar"/>
+	<classpathentry kind="lib" path="lib/video/library/gstreamer-java.jar"/>
+	<classpathentry kind="lib" path="lib/video/library/jna.jar"/>
+	<classpathentry kind="lib" path="lib/video/library/video.jar"/>
+	<classpathentry kind="lib" path="lib/SimpleOpenNI/library/SimpleOpenNI.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/SimpleOpenNI/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/syphon/Syphon.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/syphon"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/syphon/jsyphon.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/syphon"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/oscP5/oscP5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
