@@ -10,7 +10,7 @@ import processing.video.Movie;
 import SimpleOpenNI.SimpleOpenNI;
 // This is from Processing2.2.1
 
-// TODO: Add Analysis'
+// TODO: Next look into backgroundModelling kinect.depthMap
 
 @SuppressWarnings("serial")
 public class BackgroundSubtraction extends PApplet {
@@ -39,7 +39,7 @@ public class BackgroundSubtraction extends PApplet {
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
 
-	BufferOfMatrices depthBuffer, grayImageBuffer;
+	BufferOfMatrices depthBuffer, grayImageBuffer, rgbBuffer;
 
 	@Override
 	public void setup() {
@@ -57,6 +57,7 @@ public class BackgroundSubtraction extends PApplet {
 		//
 		// depthBuffer = new BufferOfMatrices(50, 30 * 1000);
 		grayImageBuffer = new BufferOfMatrices(10, 10 * 1000);
+		rgbBuffer = new BufferOfMatrices(10, 10 * 1000);
 
 	}
 
@@ -163,23 +164,29 @@ public class BackgroundSubtraction extends PApplet {
 				// Make GRAYSCALE Image
 				// Load Pixels
 				rgbCam.loadPixels();
-				float[][] grayMatrix = new float[rgbCam.width][rgbCam.height];
+				// float[][] grayMatrix = new float[rgbCam.width][rgbCam.height];
+				float[][] rgbMatrix = new float[rgbCam.width][rgbCam.height];
 				for (int y = 0; y < rgbCam.height; y++) {
 					for (int x = 0; x < rgbCam.width; x++) {
 						int index = x + y * rgbCam.width;
 						int currColor = rgbCam.pixels[index];
+
+						rgbMatrix[x][y] = currColor;
+
 						// Get current Colors
 						int currR = (currColor >> 16) & 0xFF;
-						// int currG = (currColor >> 8) & 0xFF;
-						// int currB = currColor & 0xFF;
+						int currG = (currColor >> 8) & 0xFF;
+						int currB = currColor & 0xFF;
 						// set new color of pixel
-						rgbCam.pixels[index] = 0xff000000 | (currR << 16) | (currR << 8) | currR;
+						rgbCam.pixels[index] = 0xff000000 | (currR << 16) | (currG << 8) | currB;
 
-						grayMatrix[x][y] = currR;
+						// grayMatrix[x][y] = currR;
+
 					}
 				}
 				// Add Pixels to a buffer
-				grayImageBuffer.updateStream(grayMatrix);
+				// grayImageBuffer.updateStream(grayMatrix);
+				rgbBuffer.updateStream(rgbMatrix);
 
 				// Update Pixels
 				rgbCam.updatePixels();
@@ -191,8 +198,11 @@ public class BackgroundSubtraction extends PApplet {
 			image(rgbCam, 0, 0);
 
 			// Draw Background Image Also
-			if (grayImageBuffer.medianValueImage != null) {
-				image(grayImageBuffer.medianValueImage, 640, 0);
+			// if (grayImageBuffer.medianValueImage != null) {
+			// image(grayImageBuffer.medianValueImage, 640, 0);
+			// }
+			if (rgbBuffer.medianValueImage != null) {
+				image(rgbBuffer.medianValueImage, 640, 0);
 			}
 
 			popMatrix();
@@ -230,6 +240,7 @@ public class BackgroundSubtraction extends PApplet {
 		void updateStream(float[][] matrix) {
 			// Decide if we should add matrix
 			if ((timeAtLastImage + this.getBufferStorageFrequency()) < millis()) {
+
 				// Add Matrix
 				matrices.add(0, matrix);
 				timeAtLastImage = millis();
@@ -237,32 +248,34 @@ public class BackgroundSubtraction extends PApplet {
 
 				// Calculate MedianValueMatrix
 				if (matrices.size() > 0) {
-					medianValueMatrix = medianValuesOfMatrices(this);
+					// medianValueMatrix = medianValuesOfMatrices(this, true);
+					medianValueMatrix = medianValuesOfMatrices(this, false); // if values stored a color, don't halve them at even levels
 
 					if (medianValueImage == null) {
 						medianValueImage = new PImage(matrices.get(0).length, matrices.get(0)[0].length);
 					}
-					
+
 					// Create Image of medianValues
+					// Note - the below method changes depending on the type of values we're storing and how we choose to encode them.
+					// - - perhaps the type of image produced should be defined in the parameters
+
 					medianValueImage.loadPixels(); // ~
-					pushStyle();
-					colorMode(HSB, 100);
-					strokeWeight(1);
-					float[][] bgImage = grayImageBuffer.getMedianValueMatrix();
+					float[][] bgImage = this.getMedianValueMatrix();
 					if (bgImage != null) {
 						for (int x = 0; x < bgImage.length; x++) {
 							for (int y = 0; y < bgImage[0].length; y++) {
 								int value = (int) bgImage[x][y];
-								// value is in 255
-								// int brightness = (int) map(value,0,255,0,100);
-								// stroke(0, 0, brightness);
-								// point(x, y);
+
+								// Nicely enough - median values also work well for RGB colors - since we're selecting a historic pixel
+								// Still works since we’re using the median value. Though conceptually we should be looking at RGB separately. So 'values' can be ordered correctly.
+
 								int index = x + y * bgImage.length;
-								medianValueImage.pixels[index] = 0xff000000 | (value << 16) | (value << 8) | value;
+
+								// medianValueImage.pixels[index] = 0xff000000 | (value << 16) | (value << 8) | value; // grayscale mapoping of a value from 0-255
+								medianValueImage.pixels[index] = value; // value represents a color and can be directly mapped
 							}
 						}
 					}
-					popStyle();
 					medianValueImage.updatePixels();
 
 				}
@@ -291,7 +304,7 @@ public class BackgroundSubtraction extends PApplet {
 	 *            - accepts matrices of the same width and height
 	 * @return
 	 */
-	float[][] medianValuesOfMatrices(BufferOfMatrices buffer) {
+	float[][] medianValuesOfMatrices(BufferOfMatrices buffer, boolean halveEvenMidPoints) {
 		int numMatrices = buffer.matrices.size();
 		if (buffer.matrices.size() == 0)
 			return null;
@@ -312,10 +325,12 @@ public class BackgroundSubtraction extends PApplet {
 				// Arrange numbers
 				Arrays.sort(numbers);
 				float median;
-				if (numbers.length % 2 == 0)
-					median = (numbers[numbers.length / 2] + numbers[numbers.length / 2 - 1]) / 2;
-				else
-					median = numbers[numbers.length / 2];
+				median = numbers[numbers.length / 2];
+				if (halveEvenMidPoints) {
+					if (numbers.length % 2 == 0) {
+						median = (numbers[numbers.length / 2] + numbers[numbers.length / 2 - 1]) / 2;
+					}
+				}
 
 				returnMatrix[x][y] = median;
 			}
