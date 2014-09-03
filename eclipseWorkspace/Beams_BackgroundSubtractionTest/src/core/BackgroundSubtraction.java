@@ -16,7 +16,7 @@ import SimpleOpenNI.SimpleOpenNI;
 public class BackgroundSubtraction extends PApplet {
 
 	// OPTIONS!
-	String INPUT_MODE = INPUT_MODE_INTERNAL_CAMERA;
+	String INPUT_MODE = INPUT_MODE_KINECT;
 
 	// ////////////////////////////////////////////////////////////////////////////
 
@@ -24,8 +24,8 @@ public class BackgroundSubtraction extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 	static final String INPUT_MODE_MOVIE = "INPUT_MODE_MOVIE";
 
-	int swidth = 800;
-	int sheight = 600;
+	int swidth = 1280;
+	int sheight = 960;
 
 	// Input - Camera
 	Capture rgbCam;
@@ -35,11 +35,14 @@ public class BackgroundSubtraction extends PApplet {
 
 	// Input - Kinect
 	SimpleOpenNI kinect;
+	static int kinectDepthWidth = 640;
+	static int kinectDepthHeight = 480;
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
 
-	BufferOfMatrices depthBuffer, grayImageBuffer, rgbBuffer;
+	BufferOfDepthMatrices depthBuffer;
+	DepthMatrixSmoother smootherDepthMatrix;
 
 	@Override
 	public void setup() {
@@ -53,12 +56,10 @@ public class BackgroundSubtraction extends PApplet {
 		} else if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			this.setupMovie();
 		}
+		
+		depthBuffer = new BufferOfDepthMatrices(5, 10 * 1000);
 
-		//
-		// depthBuffer = new BufferOfMatrices(50, 30 * 1000);
-		grayImageBuffer = new BufferOfMatrices(10, 10 * 1000);
-		rgbBuffer = new BufferOfMatrices(10, 10 * 1000);
-
+		smootherDepthMatrix = new DepthMatrixSmoother(DepthMatrixSmoother.MODE_FirstNonzero, 1, kinectDepthWidth, kinectDepthHeight);
 	}
 
 	void setupInternalCamera() {
@@ -129,154 +130,237 @@ public class BackgroundSubtraction extends PApplet {
 			realWorldMap = kinect.depthMapRealWorld();
 
 			// DRAW
-			pushStyle();
-			colorMode(HSB, 100);
+			// pushStyle();
+			// colorMode(HSB, 100);
 
-			int res = 5;
+			// Remember depth for smoother image
+			smootherDepthMatrix.updateStream(depthMap);
 
-			int index;
-			for (int y = 0; y < kinect.depthHeight(); y += res) {
-				for (int x = 0; x < kinect.depthWidth(); x += res) {
-					index = x + y * kinect.depthWidth();
-					float depthValue = depthMap[index]; // depthMap is distance in mm
-					if (depthMap[index] > 0) {
-						float brightness = map(depthValue, 0, 3000, 100, 0);
-						stroke(0, 0, brightness);
-						strokeWeight(5);
-						point(x, y);
-					}
-				}
+			// Draw smoother depthMatrix as image
+			smootherDepthMatrix.getImageOfDepthMatrix();
+			if (smootherDepthMatrix.image != null) {
+				image(smootherDepthMatrix.image, 0, 480);
 			}
 
-			popStyle();
-		}
+			// Store depth map in buffer
+			depthBuffer.updateStream(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight);
 
-		// CAMERA TEST
-		// DRAW FOR INTERNAL CAMERA
-		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
-			background(0);
+			// Display Depth Map
+			image(kinect.depthImage(), 0, 0);
 
-			// Read rgbCam
-			if (rgbCam.available() == true) {
-				// update
-				rgbCam.read();
-
-				// Make GRAYSCALE Image
-				// Load Pixels
-				rgbCam.loadPixels();
-				// float[][] grayMatrix = new float[rgbCam.width][rgbCam.height];
-				float[][] rgbMatrix = new float[rgbCam.width][rgbCam.height];
-				for (int y = 0; y < rgbCam.height; y++) {
-					for (int x = 0; x < rgbCam.width; x++) {
-						int index = x + y * rgbCam.width;
-						int currColor = rgbCam.pixels[index];
-
-						rgbMatrix[x][y] = currColor;
-
-						// Get current Colors
-						int currR = (currColor >> 16) & 0xFF;
-						int currG = (currColor >> 8) & 0xFF;
-						int currB = currColor & 0xFF;
-						// set new color of pixel
-						rgbCam.pixels[index] = 0xff000000 | (currR << 16) | (currG << 8) | currB;
-
-						// grayMatrix[x][y] = currR;
-
-					}
-				}
-				// Add Pixels to a buffer
-				// grayImageBuffer.updateStream(grayMatrix);
-				rgbBuffer.updateStream(rgbMatrix);
-
-				// Update Pixels
-				rgbCam.updatePixels();
+			// Display background image
+			if (depthBuffer.backgroundImage != null) {
+				image(depthBuffer.backgroundImage, 640, 0);
 			}
 
-			// Display image
-			pushMatrix();
-			scale(0.5f);
-			image(rgbCam, 0, 0);
-
-			// Draw Background Image Also
-			// if (grayImageBuffer.medianValueImage != null) {
-			// image(grayImageBuffer.medianValueImage, 640, 0);
-			// }
-			if (rgbBuffer.medianValueImage != null) {
-				image(rgbBuffer.medianValueImage, 640, 0);
+			// Display foreground image
+			if (depthBuffer.foregroundImage != null) {
+				image(depthBuffer.getForegroundImageFromCurrentMatrix(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight, 200), 640, 480);
 			}
 
-			popMatrix();
-
+			// popStyle();
 		}
 
 	}
 
-	class BufferOfMatrices {
+	/**
+	 * Stores a series of matrices and goes through them until a non-zero value can be found for each pixel. This object should be used live. It takes in a matrix every time it is updated.
+	 * 
+	 * @author hanleyweng
+	 * 
+	 */
+	class DepthMatrixSmoother {
+		int maxMatrices;
+
+		static final String MODE_FirstNonzero = "Gets first non zero value - fast."; // Fast as it does not need to store frames.
+		static final String MODE_LowestNonzeroValue = "Gets lowest non zero value in the buffer - means however that closer objects will stay on screen longer.";
+		String MODE = DepthMatrixSmoother.MODE_FirstNonzero;
+
+		ArrayList<int[]> matrices;
+
+		int[] smootherMatrix;
+
+		int width;
+		int height;
+		int matrixMaxValue;
+		PImage image;
+
+		/**
+		 * 
+		 * @param maxMatrices
+		 *            - note - this is redundant if mode is set too MODE_FirstNonzero.
+		 * @param matrixWidth
+		 * @param matrixHeight
+		 */
+		DepthMatrixSmoother(String mode, int maxMatrices, int matrixWidth, int matrixHeight) {
+
+			if (!mode.equals(MODE_FirstNonzero)) {
+				if (!mode.equals(MODE_LowestNonzeroValue)) {
+					System.err.println("Please select an appropriate mode.");
+				}
+			}
+
+			this.MODE = mode;
+
+			this.maxMatrices = maxMatrices;
+			this.width = matrixWidth;
+			this.height = matrixHeight;
+
+			smootherMatrix = new int[matrixWidth * matrixHeight];
+			matrices = new ArrayList<int[]>();
+			image = new PImage(width, height);
+			matrixMaxValue = Integer.MIN_VALUE;
+
+			if (this.MODE.equals(MODE_FirstNonzero)) {
+				maxMatrices = 1;
+			}
+		}
+
+		void updateStream(int[] matrix) {
+
+			// Add Matrix
+			matrices.add(0, matrix);
+
+			// Calculate smoother matrix
+			if (this.MODE.equals(MODE_FirstNonzero)) {
+				// For every pixel. Store that pixel to smootherMatrix if it isn't zero. If it is zero, try the next matrix.
+				for (int i = 0; i < matrix.length; i++) {
+					for (int m = 0; m < matrices.size(); m++) {
+						int[] curMatrix = matrices.get(m);
+						int value = curMatrix[i];
+						if (value > matrixMaxValue) {
+							matrixMaxValue = value;
+						}
+						if (value != 0) {
+							smootherMatrix[i] = value;
+							break;
+						}
+						// since we don't have a clause here for what to do when all pixels are zero; it will continue to use it's historic values as opposed to reverting back to zero.
+					}
+				}
+			}
+			// --- NOTE: This method "MODE_LowestNonzeroValue" - looks the same regardless of number of matrices or in comparison to MODE_FirstNonzero - hence - it may not be sampling over a long enough duration to be of any real effect.
+			if (this.MODE.equals(MODE_LowestNonzeroValue)) {
+				// For every pixel - identify the lowest-non-zero-value in the series and assign it
+				for (int i = 0; i < matrix.length; i++) {
+					int lowestNonZeroValue = Integer.MAX_VALUE;
+					for (int m = 0; m < matrices.size(); m++) {
+						int[] curMatrix = matrices.get(m);
+						int value = curMatrix[i];
+						if (value > matrixMaxValue) {
+							matrixMaxValue = value;
+						}
+						if ((value < lowestNonZeroValue) && (value != 0)) {
+							lowestNonZeroValue = value;
+						}
+					}
+					if (lowestNonZeroValue != Integer.MAX_VALUE) { // Reusing old value if all current values are 0.
+						smootherMatrix[i] = lowestNonZeroValue;
+					}
+				}
+			}
+
+			// Restrict size
+			while (matrices.size() > maxMatrices) {
+				// Remove last item if too full
+				matrices.remove(matrices.size() - 1);
+			}
+		}
+
+		PImage getImageOfDepthMatrix() {
+			// Generate image
+			image.loadPixels();
+			for (int i = 0; i < smootherMatrix.length; i++) {
+				int value = smootherMatrix[i];
+				value = (int) mapWithCap(value, 0, matrixMaxValue, 255, 0);
+				image.pixels[i] = 0xff000000 | (value << 16) | (value << 8) | value;
+			}
+			image.updatePixels();
+
+			return image;
+		}
+
+	}
+
+	/**
+	 * Contains a series of Depth Matrices which can be used to model depth-background and hence depth-foreground.
+	 * 
+	 * This object should be continuously updated with matrices - it itself will decide if it keeps them or not.
+	 * 
+	 * @author hanleyweng
+	 * 
+	 */
+	class BufferOfDepthMatrices {
 		int maxBufferSize; // maxImages
 		int bufferDuration; // in millis
-		int timeAtLastImage;
+		int timeOfLastAddition;
 
-		ArrayList<float[][]> matrices = new ArrayList<float[][]>();
+		ArrayList<int[][]> matrices;
 
-		// boolean calculateBackgroundOnUpdate = true;
+		int[][] backgroundModel_medianValueMatrix; // backgroundModel
+		PImage backgroundImage;
+		int backgroundImageMaxValue;
 
-		float[][] medianValueMatrix;
-		PImage medianValueImage;
+		PImage foregroundImage;
 
-		BufferOfMatrices(int maxBufferSize, int bufferDuration_inMillis) {
+		BufferOfDepthMatrices(int maxBufferSize, int bufferDuration_inMillis) {
 			this.maxBufferSize = maxBufferSize;
 			this.bufferDuration = bufferDuration_inMillis;
 
-			timeAtLastImage = millis();
+			timeOfLastAddition = 0;
+			matrices = new ArrayList<int[][]>();
+			backgroundImageMaxValue = Integer.MIN_VALUE;
 		}
 
-		float getBufferStorageFrequency() {
-			return bufferDuration / maxBufferSize;
+		void updateStream(int[] matrix, int matrixWidth, int matrixHeight) {
+			if ((timeOfLastAddition + this.getBufferStorageFrequency()) < millis()) {
+				int[][] newMatrix = convertOneDimensionalToTwoDimensionalArray(matrix, matrixWidth, matrixHeight);
+				updateStream(newMatrix);
+			}
 		}
 
-		/**
-		 * Object should be continuously fed with matrices - it will decide if it keeps them or not
-		 */
-		void updateStream(float[][] matrix) {
+		void updateStream(int[][] matrix) {
 			// Decide if we should add matrix
-			if ((timeAtLastImage + this.getBufferStorageFrequency()) < millis()) {
+			if ((timeOfLastAddition + this.getBufferStorageFrequency()) < millis()) {
 
 				// Add Matrix
 				matrices.add(0, matrix);
-				timeAtLastImage = millis();
-				// Note - millis() Returns the number of milliseconds (thousandths of a second) since starting the program.
-
+				timeOfLastAddition = millis();
 				// Calculate MedianValueMatrix
 				if (matrices.size() > 0) {
-					// medianValueMatrix = medianValuesOfMatrices(this, true);
-					medianValueMatrix = medianValuesOfMatrices(this, false); // if values stored a color, don't halve them at even levels
+					// backgroundModel_medianValueMatrix = medianValuesOfIntMatrices(this, true, false);
+					backgroundModel_medianValueMatrix = medianValuesOfIntMatrices(this, true, true);
 
-					if (medianValueImage == null) {
-						medianValueImage = new PImage(matrices.get(0).length, matrices.get(0)[0].length);
+					if (backgroundImage == null) {
+						backgroundImage = new PImage(matrices.get(0).length, matrices.get(0)[0].length);
+						foregroundImage = new PImage(matrices.get(0).length, matrices.get(0)[0].length);
 					}
 
-					// Create Image of medianValues
-					// Note - the below method changes depending on the type of values we're storing and how we choose to encode them.
-					// - - perhaps the type of image produced should be defined in the parameters
-
-					medianValueImage.loadPixels(); // ~
-					float[][] bgImage = this.getMedianValueMatrix();
+					// Create Image of medianValues - backgroundImage
+					backgroundImage.loadPixels(); // ~
+					int[][] bgImage = backgroundModel_medianValueMatrix;
+					int maxValue = Integer.MIN_VALUE;
 					if (bgImage != null) {
 						for (int x = 0; x < bgImage.length; x++) {
 							for (int y = 0; y < bgImage[0].length; y++) {
-								int value = (int) bgImage[x][y];
-
-								// Nicely enough - median values also work well for RGB colors - since we're selecting a historic pixel
-								// Still works since we’re using the median value. Though conceptually we should be looking at RGB separately. So 'values' can be ordered correctly.
-
+								int value = bgImage[x][y];
+								if (maxValue < value) {
+									maxValue = value;
+								}
+								value = (int) map(value, 0, backgroundImageMaxValue, 0, 255);
+								value = Math.max(value, 0);
+								value = Math.min(value, backgroundImageMaxValue);
 								int index = x + y * bgImage.length;
+								backgroundImage.pixels[index] = 0xff000000 | (value << 16) | (value << 8) | value; // grayscale mapping of a value from 0-255
+								// backgroundImage.pixels[index] = value; // value represents a color and can be directly mapped
 
-								// medianValueImage.pixels[index] = 0xff000000 | (value << 16) | (value << 8) | value; // grayscale mapoping of a value from 0-255
-								medianValueImage.pixels[index] = value; // value represents a color and can be directly mapped
 							}
 						}
 					}
-					medianValueImage.updatePixels();
+					if (maxValue > backgroundImageMaxValue) {
+						backgroundImageMaxValue = maxValue;
+					}
+					backgroundImage.updatePixels();
 
 				}
 
@@ -287,11 +371,47 @@ public class BackgroundSubtraction extends PApplet {
 				// Remove last item if too full
 				matrices.remove(matrices.size() - 1);
 			}
-
 		}
 
-		float[][] getMedianValueMatrix() {
-			return medianValueMatrix;
+		PImage getForegroundImageFromCurrentMatrix(int[] matrix, int matrixWidth, int matrixHeight, int threshold) {
+			int[][] curMatrix = convertOneDimensionalToTwoDimensionalArray(matrix, matrixWidth, matrixHeight);
+			return getForegroundImageFromCurrentMatrix(curMatrix, threshold);
+		}
+
+		PImage getForegroundImageFromCurrentMatrix(int[][] curMatrix, int threshold) {
+			int[][] bgImage = backgroundModel_medianValueMatrix;
+			if (bgImage != null) {
+				foregroundImage.loadPixels();
+				for (int x = 0; x < bgImage.length; x++) {
+					for (int y = 0; y < bgImage[0].length; y++) {
+						int bgValue = bgImage[x][y];
+						int curValue = curMatrix[x][y];
+						int index = x + y * bgImage.length;
+						if (abs(curValue - bgValue) > threshold) {
+							foregroundImage.pixels[index] = 0xff000000 | (255 << 16) | (255 << 8) | 255; // <- here we choose to just make it black and white
+						} else {
+							foregroundImage.pixels[index] = 0;
+						}
+					}
+				}
+				foregroundImage.updatePixels();
+			}
+			return foregroundImage;
+		}
+
+		int[][] convertOneDimensionalToTwoDimensionalArray(int[] matrix, int matrixWidth, int matrixHeight) {
+			int[][] newMatrix = new int[matrixWidth][matrixHeight];
+			for (int x = 0; x < matrixWidth; x++) {
+				for (int y = 0; y < matrixHeight; y++) {
+					int index = x + y * matrixWidth;
+					newMatrix[x][y] = matrix[index];
+				}
+			}
+			return newMatrix;
+		}
+
+		float getBufferStorageFrequency() {
+			return bufferDuration / maxBufferSize;
 		}
 	}
 
@@ -304,7 +424,7 @@ public class BackgroundSubtraction extends PApplet {
 	 *            - accepts matrices of the same width and height
 	 * @return
 	 */
-	float[][] medianValuesOfMatrices(BufferOfMatrices buffer, boolean halveEvenMidPoints) {
+	int[][] medianValuesOfIntMatrices(BufferOfDepthMatrices buffer, boolean halveEvenMidPoints, boolean ignoresZeroValues) {
 		int numMatrices = buffer.matrices.size();
 		if (buffer.matrices.size() == 0)
 			return null;
@@ -312,7 +432,7 @@ public class BackgroundSubtraction extends PApplet {
 		int width = buffer.matrices.get(0).length;
 		int height = buffer.matrices.get(0)[0].length;
 
-		float[][] returnMatrix = new float[width][height];
+		int[][] returnMatrix = new int[width][height];
 
 		// Go through entire 2d-array
 		for (int x = 0; x < width; x++) {
@@ -320,7 +440,13 @@ public class BackgroundSubtraction extends PApplet {
 				// Get all t-numbers for a specific cell
 				float[] numbers = new float[numMatrices];
 				for (int i = 0; i < buffer.matrices.size(); i++) {
-					numbers[i] = buffer.matrices.get(i)[x][y];
+					int value = buffer.matrices.get(i)[x][y];
+					if (ignoresZeroValues) {
+						if (value == 0) {
+							continue;
+						}
+					}
+					numbers[i] = value;
 				}
 				// Arrange numbers
 				Arrays.sort(numbers);
@@ -332,11 +458,30 @@ public class BackgroundSubtraction extends PApplet {
 					}
 				}
 
-				returnMatrix[x][y] = median;
+				returnMatrix[x][y] = (int) median;
 			}
 		}
 
 		return returnMatrix;
+	}
+
+	/**
+	 * same as map() function, except values are capped at start2 and stop2
+	 * 
+	 * @param value
+	 * @param start1
+	 * @param stop1
+	 * @param start2
+	 * @param stop2
+	 * @return mapped and capped value
+	 */
+	public float mapWithCap(float value, float start1, float stop1, float start2, float stop2) {
+		float v = map(value, start1, stop1, start2, stop2);
+		float biggerValue = Math.max(start2, stop2);
+		float smallerValue = Math.min(start2, stop2);
+		v = Math.min(biggerValue, v);
+		v = Math.max(smallerValue, v);
+		return v;
 	}
 
 }
