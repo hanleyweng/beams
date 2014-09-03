@@ -41,7 +41,7 @@ public class BackgroundSubtraction extends PApplet {
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
 
-	BufferOfDepthMatrices depthBuffer;
+	DepthMatrixBFgroundModeller bfgroundModeller;
 	DepthMatrixSmoother smootherDepthMatrix;
 
 	@Override
@@ -56,8 +56,8 @@ public class BackgroundSubtraction extends PApplet {
 		} else if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			this.setupMovie();
 		}
-		
-		depthBuffer = new BufferOfDepthMatrices(5, 10 * 1000);
+
+		bfgroundModeller = new DepthMatrixBFgroundModeller(5, 10 * 1000);
 
 		smootherDepthMatrix = new DepthMatrixSmoother(DepthMatrixSmoother.MODE_FirstNonzero, 1, kinectDepthWidth, kinectDepthHeight);
 	}
@@ -143,19 +143,19 @@ public class BackgroundSubtraction extends PApplet {
 			}
 
 			// Store depth map in buffer
-			depthBuffer.updateStream(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight);
+			bfgroundModeller.updateStream(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight);
 
 			// Display Depth Map
 			image(kinect.depthImage(), 0, 0);
 
 			// Display background image
-			if (depthBuffer.backgroundImage != null) {
-				image(depthBuffer.backgroundImage, 640, 0);
+			if (bfgroundModeller.backgroundImage != null) {
+				image(bfgroundModeller.backgroundImage, 640, 0);
 			}
 
 			// Display foreground image
-			if (depthBuffer.foregroundImage != null) {
-				image(depthBuffer.getForegroundImageFromCurrentMatrix(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight, 200), 640, 480);
+			if (bfgroundModeller.foregroundImage != null) {
+				image(bfgroundModeller.getForegroundImageFromCurrentMatrix(smootherDepthMatrix.smootherMatrix, kinectDepthWidth, kinectDepthHeight, 150), 640, 480);
 			}
 
 			// popStyle();
@@ -290,7 +290,7 @@ public class BackgroundSubtraction extends PApplet {
 	 * @author hanleyweng
 	 * 
 	 */
-	class BufferOfDepthMatrices {
+	class DepthMatrixBFgroundModeller {
 		int maxBufferSize; // maxImages
 		int bufferDuration; // in millis
 		int timeOfLastAddition;
@@ -303,7 +303,7 @@ public class BackgroundSubtraction extends PApplet {
 
 		PImage foregroundImage;
 
-		BufferOfDepthMatrices(int maxBufferSize, int bufferDuration_inMillis) {
+		DepthMatrixBFgroundModeller(int maxBufferSize, int bufferDuration_inMillis) {
 			this.maxBufferSize = maxBufferSize;
 			this.bufferDuration = bufferDuration_inMillis;
 
@@ -424,7 +424,7 @@ public class BackgroundSubtraction extends PApplet {
 	 *            - accepts matrices of the same width and height
 	 * @return
 	 */
-	int[][] medianValuesOfIntMatrices(BufferOfDepthMatrices buffer, boolean halveEvenMidPoints, boolean ignoresZeroValues) {
+	int[][] medianValuesOfIntMatrices(DepthMatrixBFgroundModeller buffer, boolean halveEvenMidPoints, boolean ignoresZeroValues) {
 		int numMatrices = buffer.matrices.size();
 		if (buffer.matrices.size() == 0)
 			return null;
