@@ -1,7 +1,7 @@
-#N canvas -938 472 921 447 10;
+#N canvas 356 519 1282 473 10;
 #X declare -lib mrpeach;
 #X obj 34 -49 hsl 128 15 1 20 0 0 heightOfRow-slider-value empty heightOfRow
--2 -8 0 10 -262144 -1 -1 0 1;
+-2 -8 0 10 -262144 -1 -1 2000 1;
 #N canvas 717 629 385 355 osc-connection 0;
 #X obj 61 177 udpsend;
 #X obj 151 39 loadbang;
@@ -22,32 +22,57 @@
 #X connect 8 0 6 0;
 #X restore 30 -132 pd osc-connection;
 #X msg 30 -174 bang establish connection;
-#X obj 31 49 osc-out heightOfRow;
-#X obj 31 -14 int;
-#X floatatom 31 18 8 0 0 0 - - -;
+#X obj 31 44 osc-out heightOfRow;
+#X obj 31 -19 int;
+#X floatatom 31 13 8 0 0 0 - - -;
 #X obj 254 -49 hsl 128 15 1 200 0 0 empty empty zaxisSlice -2 -8 0
-10 -262144 -1 -1 2000 1;
-#X obj 251 -14 int;
-#X floatatom 251 18 8 0 0 0 - - -;
+10 -262144 -1 -1 1700 1;
+#X obj 251 -19 int;
+#X floatatom 251 13 8 0 0 0 - - -;
 #X text 196 -175 click to reconnect to running app;
 #X text 29 -235 Parametric Tweaker for the Chippendale BEAMS Festival
 2014;
 #X text 29 -219 by Pier;
 #X text 30 -92 For 2D slit scan;
 #X obj 653 -50 hsl 128 15 1 255 0 0 empty empty depthThreshold -2 -8
-0 10 -262144 -1 -1 3900 1;
-#X obj 650 -14 int;
-#X floatatom 650 18 8 0 0 0 - - -;
+0 10 -262144 -1 -1 8300 1;
+#X obj 650 -19 int;
+#X floatatom 650 13 8 0 0 0 - - -;
 #X text 648 -92 For z distance background removal;
-#X obj 650 48 osc-out depthThreshold;
-#X obj 251 48 osc-out zaxisSlice;
+#X obj 650 43 osc-out depthThreshold;
+#X obj 251 43 osc-out zaxisSlice;
 #X obj 428 -50 hsl 128 15 1 30 0 0 empty empty zaxisThreshold -2 -8
-0 10 -262144 -1 -1 7400 1;
-#X obj 425 -15 int;
-#X floatatom 425 17 8 0 0 0 - - -;
-#X text 426 -88;
-#X text 356 -96 For Kinect Zaxis;
-#X obj 425 47 osc-out zaxisThreshold;
+0 10 -262144 -1 -1 1400 1;
+#X obj 425 -20 int;
+#X floatatom 425 12 8 0 0 0 - - -;
+#X text 356 -92 For Kinect Zaxis;
+#X obj 425 42 osc-out zaxisThreshold;
+#X obj 918 -174 hsl 128 15 2 50 0 0 empty empty testInt1 -2 -8 0 10
+-262144 -1 -1 900 1;
+#X obj 915 -143 int;
+#X floatatom 915 -111 8 0 0 0 - - -;
+#X text 913 -215 TESTER VALUES;
+#X text 493 -152 comment;
+#X obj 915 -81 osc-out testInt1;
+#X obj 1075 -174 hsl 128 15 0 255 0 0 empty empty testInt2 -2 -8 0
+10 -262144 -1 -1 0 1;
+#X obj 1072 -143 int;
+#X floatatom 1072 -111 8 0 0 0 - - -;
+#X obj 1072 -81 osc-out testInt2;
+#X obj 916 -16 hsl 80 15 0 1 0 0 empty empty testFloat1 -2 -8 0 10
+-262144 -1 -1 0 1;
+#X floatatom 913 12 8 0 0 0 - - -;
+#X obj 1075 -16 hsl 80 15 0 1 0 0 empty empty testFloat2 -2 -8 0 10
+-262144 -1 -1 0 1;
+#X floatatom 1072 12 8 0 0 0 - - -;
+#X obj 913 46 osc-out testFloat1;
+#X obj 1072 46 osc-out testFloat2;
+#X obj 33 110 hsl 128 15 2 50 0 0 empty empty posterizeLevel -2 -8
+0 10 -262144 -1 -1 0 1;
+#X obj 30 140 int;
+#X floatatom 30 172 8 0 0 0 - - -;
+#X text 32 84;
+#X obj 30 203 osc-out posterizeLevel;
 #X connect 0 0 4 0;
 #X connect 2 0 1 0;
 #X connect 4 0 5 0;
@@ -60,4 +85,17 @@
 #X connect 15 0 17 0;
 #X connect 19 0 20 0;
 #X connect 20 0 21 0;
-#X connect 21 0 24 0;
+#X connect 21 0 23 0;
+#X connect 24 0 25 0;
+#X connect 25 0 26 0;
+#X connect 26 0 29 0;
+#X connect 30 0 31 0;
+#X connect 31 0 32 0;
+#X connect 32 0 33 0;
+#X connect 34 0 35 0;
+#X connect 35 0 38 0;
+#X connect 36 0 37 0;
+#X connect 37 0 39 0;
+#X connect 40 0 41 0;
+#X connect 41 0 42 0;
+#X connect 42 0 44 0;
