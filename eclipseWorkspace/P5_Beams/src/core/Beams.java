@@ -6,6 +6,7 @@ import SimpleOpenNI.*;
 import codeanticode.syphon.*;
 import filter.DepthThresholder;
 import filter.RemoveRedFilter;
+import filter.Posterize;
 import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
@@ -50,6 +51,7 @@ public class Beams extends PApplet {
 	ScaledIn scaledIn = new ScaledIn();
 	ZaxisSlitScan zaxisSlit = new ZaxisSlitScan();
 	ZaxisContours zaxisContours = new ZaxisContours();
+	Posterize posterize = new Posterize();
 
 	PImage outputImg;
 
