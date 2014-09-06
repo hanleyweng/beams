@@ -1,10 +1,10 @@
 package filter;
 import processing.core.PImage;
 
-public class RemoveRedFilter extends Filter {
+public class RemoveRed extends Filter {
 	PImage img;
 
-	public RemoveRedFilter() {
+	public RemoveRed() {
 	};
 
 	/**
@@ -12,7 +12,7 @@ public class RemoveRedFilter extends Filter {
 	 * @param image - the image to subtract red from
 	 * @return an image with no red
 	 */
-	PImage getFilteredImage(PImage image) {
+	public PImage getFilteredImage(PImage image) {
 		this.img = this.copyImage(image); // must use get, else the original image is manipulated directly. (since this is a pointer)
 
 		int width = img.width;

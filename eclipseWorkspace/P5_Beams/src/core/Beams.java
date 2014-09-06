@@ -5,8 +5,8 @@ import util.OscHandler;
 import SimpleOpenNI.*;
 import codeanticode.syphon.*;
 import filter.DepthThresholder;
-import filter.RemoveRedFilter;
 import filter.Posterize;
+import filter.RemoveRed;
 import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
@@ -45,7 +45,7 @@ public class Beams extends PApplet {
 	Movie mov;
 
 	// Filters
-	RemoveRedFilter removeRedFilter = new RemoveRedFilter();
+	RemoveRed removeRedFilter = new RemoveRed();
 	DepthThresholder depthThresholder = new DepthThresholder();
 	SlitScan slitScan = new SlitScan();
 	ScaledIn scaledIn = new ScaledIn();
