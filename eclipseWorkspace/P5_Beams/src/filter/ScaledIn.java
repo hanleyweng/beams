@@ -30,7 +30,7 @@ public class ScaledIn extends Filter {
 	 * @param srcImg
 	 * @return
 	 */
-	PImage getFilteredImage(PApplet p, PImage srcImg) {
+	public PImage getFilteredImage(PApplet p, PImage srcImg) {
 		int width = srcImg.width;
 		int height = srcImg.height;
 		PGraphics pg = p.createGraphics(width, height);
