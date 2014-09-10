@@ -206,20 +206,6 @@ public class Beams extends PApplet {
 		// PImage colorImg = kinect.rgbImage();
 		image(depthImg, 0, 0);
 
-		//
-		// outputImg = slitScan.getFilteredImage(outputImg);
-
-		// // Drawing a blend of depth and color img
-		// TODO: Create filter to blend images together.
-		// pushStyle();
-		// image(depthImg, 0, 0);
-		// tint(255, 100);
-		// image(colorImg, 0, 0);
-		// popStyle();
-
-		// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
-		// outputImg = zaxisContours.getFilteredImage(depthImg);
-
 	}
 
 }
