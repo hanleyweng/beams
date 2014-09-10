@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import processing.core.PVector;
 
 /**
+ * This is currently broken - do not use yet!
+ * 
  * A filter ideal for efficiently smoothing out the noisy kinect depth-realWorldMap.
  * 
  * This object should be used live. It takes in a matrix every time it is updated.
@@ -37,6 +39,7 @@ public class PVectorMatrixSmoother {
 	public void updateStream(PVector[] pvectorDepthMatrix) {
 
 		// Add Matrix
+		// v- NOTE - the pvectors themselves have to be copied - hence the below simple addition wont work.
 		matrices.add(0, pvectorDepthMatrix);
 
 		// For every pixel. Store that pixel to smootherMatrix if it isn't zero. If it is zero, try the next matrix.
