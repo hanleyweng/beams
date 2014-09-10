@@ -1,5 +1,7 @@
 package core;
 
+import java.util.ArrayList;
+
 import processing.core.*; // This is from Processing2.2.1
 import processing.video.*;
 import util.OscHandler;
@@ -38,10 +40,13 @@ public class Beams extends PApplet {
 
 	// Input - Kinect
 	SimpleOpenNI kinect;
-	static int kinectDepthWidth = 640;
-	static int kinectDepthHeight = 480;
+	static int kinectWidth = 640;
+	static int kinectHeight = 480;
 	int[] depthMap;
 	PVector[] realWorldMap;
+
+	// Kinect Filters
+	MatrixSmoother matrixSmoother;
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
@@ -129,6 +134,12 @@ public class Beams extends PApplet {
 		// align depth data to image data
 		kinect.alternativeViewPointDepthToImage();
 		kinect.setDepthColorSyncEnabled(true);
+
+		this.setupKinectFilters();
+	}
+
+	void setupKinectFilters() {
+		matrixSmoother = new MatrixSmoother(kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -208,13 +219,119 @@ public class Beams extends PApplet {
 		kinect.update();
 		depthMap = kinect.depthMap();
 		realWorldMap = kinect.depthMapRealWorld();
-
-		PImage depthImg = kinect.depthImage();
+		// PImage depthImg = kinect.depthImage();
 		// PImage colorImg = kinect.rgbImage();
-		image(depthImg, 0, 0);
-		
+
+		// UPDATE FILTERS
+		matrixSmoother.updateStream(depthMap);
+
+		// DRAW
+		this.drawDepthMatrix(matrixSmoother.getSmootherMatrix(), matrixSmoother.matrixMaxValue, matrixSmoother.matrixWidth, matrixSmoother.matrixHeight);
+
+		// image(depthImg, 0, 0);
+
 		// TODO: feed depthMapArray into a filter for a smootherMatrix
 
+	}
+
+	public void drawDepthMatrix(int[] matrix, int mmaxValue, int mwidth, int mheight) {
+		for (int x = 0; x < mwidth; x++) {
+			for (int y = 0; y < mheight; y++) {
+				int index = x + y * mwidth;
+				int matrixValue = matrix[index];
+				int displayValue = (int) mapWithCap(matrixValue, 0, mmaxValue, 255, 0);
+				stroke(displayValue);
+				point(x, y);
+			}
+		}
+	}
+
+	/**
+	 * A filter ideal for efficiently smoothing out the noisy kinect depthMap.
+	 * 
+	 * This object should be used live. It takes in a matrix every time it is updated.
+	 * 
+	 * @author hanleyweng
+	 * 
+	 */
+	public class MatrixSmoother {
+
+		int maxMatrices;
+
+		ArrayList<int[]> matrices;
+
+		int[] smootherMatrix;
+
+		int matrixMaxValue;
+
+		int matrixWidth, matrixHeight;
+
+		MatrixSmoother(int matrixWidth, int matrixHeight) {
+			this.matrixWidth = matrixWidth;
+			this.matrixHeight = matrixHeight;
+			maxMatrices = 1;
+			matrices = new ArrayList<int[]>();
+			matrixMaxValue = Integer.MIN_VALUE;
+
+			smootherMatrix = new int[matrixWidth * matrixHeight];
+		}
+
+		void updateStream(int[] matrix) {
+
+			// Add Matrix
+			matrices.add(0, matrix);
+
+			// For every pixel. Store that pixel to smootherMatrix if it isn't zero. If it is zero, try the next matrix.
+			for (int i = 0; i < matrix.length; i++) {
+				for (int m = 0; m < matrices.size(); m++) {
+					int[] curMatrix = matrices.get(m);
+					int value = curMatrix[i];
+					if (value > matrixMaxValue) {
+						matrixMaxValue = value;
+					}
+					if (value != 0) {
+						smootherMatrix[i] = value;
+						break;
+					}
+					// since we don't have a clause here for what to do when all pixels are zero; it will continue to use it's historic values as opposed to reverting back to zero.
+				}
+			}
+
+			// Restrict size
+			while (matrices.size() > maxMatrices) {
+				// Remove last item if too full
+				matrices.remove(matrices.size() - 1);
+			}
+
+		}
+
+		int[] getSmootherMatrix() {
+			return smootherMatrix;
+		}
+
+		int getMatrixMaxValue() {
+			return matrixMaxValue;
+		}
+
+	}
+
+	/**
+	 * same as map() function, except values are capped at start2 and stop2
+	 * 
+	 * @param value
+	 * @param start1
+	 * @param stop1
+	 * @param start2
+	 * @param stop2
+	 * @return mapped and capped value
+	 */
+	public float mapWithCap(float value, float start1, float stop1, float start2, float stop2) {
+		float v = map(value, start1, stop1, start2, stop2);
+		float biggerValue = Math.max(start2, stop2);
+		float smallerValue = Math.min(start2, stop2);
+		v = Math.min(biggerValue, v);
+		v = Math.max(smallerValue, v);
+		return v;
 	}
 
 }
