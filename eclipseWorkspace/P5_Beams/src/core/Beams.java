@@ -52,6 +52,7 @@ public class Beams extends PApplet {
 	// Kinect Filters
 	PVectorMatrixSmoother depthMapZsmoother;
 	SlitScan3d depthMapSlitScanner;
+	SlitScan3d colorMapSlitScanner;
 
 	// PEASYCAM
 	PeasyCam cam;
@@ -155,6 +156,7 @@ public class Beams extends PApplet {
 	void setupKinectFilters() {
 		depthMapZsmoother = new PVectorMatrixSmoother(kinectWidth, kinectHeight);
 		depthMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
+		colorMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -239,19 +241,13 @@ public class Beams extends PApplet {
 
 		// UPDATE FILTERS
 		depthMapSlitScanner.updateStream(depthMap, 20);
+		colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
 		// DRAW
 		background(0);
 
-		// this.drawPointsIn3D(realWorldMap, null);
-		// this.drawPointsIn3D(depthMap, null);
-
-		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
-		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), colorImg.pixels);
-		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), null);
-		// this.drawPointsIn3D(depthMapSlitScanner.outputMatrix, null);
-
-		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null);
+		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null);
+		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
 
 	}
 
