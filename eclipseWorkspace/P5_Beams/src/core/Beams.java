@@ -1,4 +1,5 @@
 package core;
+
 import processing.core.*; // This is from Processing2.2.1
 import processing.video.*;
 import util.OscHandler;
@@ -12,18 +13,15 @@ import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
 
-// TODO: Add Analysis'
-
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
 
 	// OPTIONS!
-	String INPUT_MODE = INPUT_MODE_MOVIE;
+	String INPUT_MODE = INPUT_MODE_KINECT;
 	static final boolean RECEIVE_OSC = true; // start OSC Server in OscHandler class.
 	static final boolean SEND_TO_SYPHON = true;
 
-	
-	//////////////////////////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////////
 
 	static final String INPUT_MODE_INTERNAL_CAMERA = "INPUT_MODE_INTERNAL_CAMERA";
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
@@ -40,7 +38,7 @@ public class Beams extends PApplet {
 
 	// Input - Kinect
 	SimpleOpenNI kinect;
-	
+
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
 
@@ -57,7 +55,7 @@ public class Beams extends PApplet {
 
 	// Handle osc messages from PureData.
 	OscHandler oscHandler;
-	
+
 	// Output to Syphon
 	SyphonServer syphonServer;
 
@@ -73,7 +71,7 @@ public class Beams extends PApplet {
 		} else if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			this.setupMovie();
 		}
-		
+
 		if (RECEIVE_OSC) {
 			oscHandler = new OscHandler();
 		}
@@ -128,7 +126,7 @@ public class Beams extends PApplet {
 		kinect.alternativeViewPointDepthToImage();
 		kinect.setDepthColorSyncEnabled(true);
 	}
-	
+
 	void setupMovie() {
 		mov = new Movie(this, "Raw Depth Kinect video.mp4");
 		mov.loop();
@@ -138,7 +136,7 @@ public class Beams extends PApplet {
 	public void draw() {
 		// Draw BG Circle to represent frames are not yet available to render
 		ellipse(swidth / 2, sheight / 2, 50, 50);
-		
+
 		// DRAW FOR INTERNAL CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_INTERNAL_CAMERA)) {
 			// Read rgbCam
@@ -167,27 +165,9 @@ public class Beams extends PApplet {
 
 		// DRAW FOR KINECT CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
-			kinect.update();
-
-			PImage depthImg = kinect.depthImage();
-			PImage colorImg = kinect.rgbImage();
-			// outputImg = slitScan.getFilteredImage(outputImg);
-
-			// // Drawing a blend of depth and color img
-			// TODO: Create filter to blend images together.
-			// pushStyle();
-			// image(depthImg, 0, 0);
-			// tint(255, 100);
-			// image(colorImg, 0, 0);
-			// popStyle();
-
-			// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
-			outputImg = zaxisContours.getFilteredImage(depthImg);
-
-			image(outputImg, 0, 0);
-
+			this.drawForKinect();
 		}
-		
+
 		// DRAW FOR MOVIE
 		if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			if (mov.available()) {
@@ -205,12 +185,40 @@ public class Beams extends PApplet {
 
 		// ///////////////////////
 		// SYPHON
-		
+
 		if (SEND_TO_SYPHON) {
 			if (outputImg != null) {
 				syphonServer.sendImage(outputImg);
 			}
 		}
+
+	}
+
+	public void drawForKinect() {
+		if (!INPUT_MODE.equals(INPUT_MODE_KINECT)) {
+			System.err.println("Input mode is not Kinect.");
+			return;
+		}
+
+		kinect.update();
+
+		PImage depthImg = kinect.depthImage();
+		// PImage colorImg = kinect.rgbImage();
+		image(depthImg, 0, 0);
+
+		//
+		// outputImg = slitScan.getFilteredImage(outputImg);
+
+		// // Drawing a blend of depth and color img
+		// TODO: Create filter to blend images together.
+		// pushStyle();
+		// image(depthImg, 0, 0);
+		// tint(255, 100);
+		// image(colorImg, 0, 0);
+		// popStyle();
+
+		// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
+		// outputImg = zaxisContours.getFilteredImage(depthImg);
 
 	}
 
