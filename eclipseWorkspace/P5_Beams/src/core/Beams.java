@@ -1,5 +1,6 @@
 package core;
 
+import peasy.PeasyCam;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -16,7 +17,6 @@ import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
 import filter3d.MatrixSmoother;
-// This is from Processing2.2.1
 
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
@@ -51,6 +51,9 @@ public class Beams extends PApplet {
 	// Kinect Filters
 	MatrixSmoother matrixSmoother;
 	PImage kinectDepthFilteredImage;
+
+	// PEASYCAM
+	PeasyCam cam;
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
@@ -139,7 +142,12 @@ public class Beams extends PApplet {
 		kinect.alternativeViewPointDepthToImage();
 		kinect.setDepthColorSyncEnabled(true);
 
+		// SETUP KINECT FILTERS
 		this.setupKinectFilters();
+
+		// SETUP PEASY CAM 
+		cam = new PeasyCam(this, swidth * 0.5, sheight * 0.5, -2000, 2700);
+
 	}
 
 	void setupKinectFilters() {
@@ -231,6 +239,8 @@ public class Beams extends PApplet {
 		matrixSmoother.updateStream(depthMap);
 
 		// DRAW
+		background(0);
+
 		this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
 		image(kinectDepthFilteredImage, 0, 0);
 
@@ -250,8 +260,6 @@ public class Beams extends PApplet {
 		}
 		image.updatePixels();
 	}
-
-	
 
 	/**
 	 * same as map() function, except values are capped at start2 and stop2
