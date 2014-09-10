@@ -346,6 +346,45 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
+	public void drawMeshIn3D(int[] depthValues, int[] pixelColors) {
+		pushMatrix();
+		pushStyle();
+
+		translate(swidth / 2, sheight / 2, 0);
+		rotateX(radians(180));
+		strokeWeight(1);
+		stroke(255);
+
+		int res = 3;
+		for (int x = 0; x < kinectWidth; x += res) {
+			for (int y = 0; y < kinectHeight; y += res) {
+				int index = x + y * kinectWidth;
+				// int depth = depthValues[index];
+				//
+				// PVector realWorldPoint = new PVector();
+				// kinect.convertProjectiveToRealWorld(new PVector(x, y, depth), realWorldPoint);
+				//
+				// // Decide if we should draw point
+				// if (realWorldPoint.z == 0) { // ~
+				// continue;
+				// }
+				//
+				// // Set color of point
+				// if (pixelColors != null) {
+				// int currColor = pixelColors[index];
+				// stroke(currColor);
+				// }
+				//
+				// // Draw Point
+				// point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+
+			}
+		}
+
+		popStyle();
+		popMatrix();
+	}
+
 	/**
 	 * same as map() function, except values are capped at start2 and stop2
 	 * 
