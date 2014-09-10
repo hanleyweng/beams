@@ -257,9 +257,9 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
-		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null);
+		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
-		this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix());
+		this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
 
 	}
 
@@ -319,7 +319,7 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
-	public void drawPointsIn3D(int[] depthValues, int[] pixelColors) {
+	public void drawPointsIn3D(int[] depthValues, int[] pixelColors, int resolution) {
 		pushMatrix();
 		pushStyle();
 
@@ -328,7 +328,7 @@ public class Beams extends PApplet {
 		strokeWeight(1);
 		stroke(255);
 
-		int res = 3;
+		int res = resolution;
 		for (int x = 0; x < kinectWidth; x += res) {
 			for (int y = 0; y < kinectHeight; y += res) {
 				int index = x + y * kinectWidth;
@@ -358,7 +358,7 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
-	public void drawMeshIn3D(int[] depthValues) {
+	public void drawMeshIn3D(int[] depthValues, int resolution) {
 		TriangleMesh mesh = new TriangleMesh();
 
 		pushMatrix();
@@ -383,7 +383,7 @@ public class Beams extends PApplet {
 		pointLight(pointLightHsb.x, pointLightHsb.y, pointLightHsb.z, 0, -500, 0);
 		noStroke();
 
-		int res = 6;
+		int res = resolution;
 
 		// ArrayList<Vec3D> realWorldPoints = new ArrayList<Vec3D>();
 		Vec3D[] realWorldPoints = new Vec3D[kinectWidth * kinectHeight];
@@ -464,7 +464,9 @@ public class Beams extends PApplet {
 		}
 
 		// Draw Mesh
-		fill(25, 60, 80);
+		// fill(25, 60, 80);
+		stroke(0, 0, 100);
+		fill(70, 60, 80, 30);
 
 		beginShape(TRIANGLES);
 		// iterate over all faces/triangles of the mesh
