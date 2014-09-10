@@ -38,6 +38,10 @@ public class Beams extends PApplet {
 
 	// Input - Kinect
 	SimpleOpenNI kinect;
+	static int kinectDepthWidth = 640;
+	static int kinectDepthHeight = 480;
+	int[] depthMap;
+	PVector[] realWorldMap;
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
@@ -200,11 +204,16 @@ public class Beams extends PApplet {
 			return;
 		}
 
+		// UPDATE
 		kinect.update();
+		depthMap = kinect.depthMap();
+		realWorldMap = kinect.depthMapRealWorld();
 
 		PImage depthImg = kinect.depthImage();
 		// PImage colorImg = kinect.rgbImage();
 		image(depthImg, 0, 0);
+		
+		// TODO: feed depthMapArray into a filter for a smootherMatrix
 
 	}
 
