@@ -47,6 +47,7 @@ public class Beams extends PApplet {
 
 	// Kinect Filters
 	MatrixSmoother matrixSmoother;
+	PImage kinectDepthFilteredImage;
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
@@ -140,6 +141,7 @@ public class Beams extends PApplet {
 
 	void setupKinectFilters() {
 		matrixSmoother = new MatrixSmoother(kinectWidth, kinectHeight);
+		kinectDepthFilteredImage = new PImage(kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -226,12 +228,29 @@ public class Beams extends PApplet {
 		matrixSmoother.updateStream(depthMap);
 
 		// DRAW
-		this.drawDepthMatrix(matrixSmoother.getSmootherMatrix(), matrixSmoother.matrixMaxValue, matrixSmoother.matrixWidth, matrixSmoother.matrixHeight);
+		// this.drawDepthMatrix(matrixSmoother.getSmootherMatrix(), matrixSmoother.matrixMaxValue, matrixSmoother.matrixWidth, matrixSmoother.matrixHeight);
+		this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
+		image(kinectDepthFilteredImage, 0, 0);
 
 		// image(depthImg, 0, 0);
 
 		// TODO: feed depthMapArray into a filter for a smootherMatrix
 
+	}
+
+	public void setDepthMatrixToImage(int[] matrix, int matrixMaxValue, PImage image) {
+		if (matrix.length != image.pixels.length) {
+			System.err.println("matrix size does not match image.pixels size");
+			return;
+		}
+
+		image.loadPixels();
+		for (int i = 0; i < matrix.length; i++) {
+			int value = matrix[i];
+			value = (int) mapWithCap(value, 0, matrixMaxValue, 255, 0);
+			image.pixels[i] = 0xff000000 | (value << 16) | (value << 8) | value;
+		}
+		image.updatePixels();
 	}
 
 	public void drawDepthMatrix(int[] matrix, int mmaxValue, int mwidth, int mheight) {
