@@ -247,9 +247,12 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
+		this.drawPointsIn3D(realWorldMap, null);
+		this.drawPointsIn3D(depthMap, null);
+
 		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), colorImg.pixels);
-		this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), null);
+		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), null);
 		// this.drawPointsIn3D(depthMapSlitScanner.outputMatrix, null);
 
 	}
@@ -290,6 +293,45 @@ public class Beams extends PApplet {
 				if (realWorldPoint == null) { // ~
 					continue;
 				}
+				if (realWorldPoint.z == 0) { // ~
+					continue;
+				}
+
+				// Set color of point
+				if (pixelColors != null) {
+					int currColor = pixelColors[index];
+					stroke(currColor);
+				}
+
+				// Draw Point
+				point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+
+			}
+		}
+
+		popStyle();
+		popMatrix();
+	}
+
+	public void drawPointsIn3D(int[] depthValues, int[] pixelColors) {
+		pushMatrix();
+		pushStyle();
+
+		translate(swidth / 2, sheight / 2, 0);
+		rotateX(radians(180));
+		strokeWeight(1);
+		stroke(255, 0, 0);
+
+		int res = 3;
+		for (int x = 0; x < kinectWidth; x += res) {
+			for (int y = 0; y < kinectHeight; y += res) {
+				int index = x + y * kinectWidth;
+				int depth = depthValues[index];
+
+				PVector realWorldPoint = new PVector();
+				kinect.convertProjectiveToRealWorld(new PVector(x, y, depth), realWorldPoint);
+
+				// Decide if we should draw point
 				if (realWorldPoint.z == 0) { // ~
 					continue;
 				}
