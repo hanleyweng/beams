@@ -17,6 +17,7 @@ import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
 import filter3d.MatrixSmoother;
+import filter3d.PVectorMatrixSmoother;
 
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
@@ -50,6 +51,7 @@ public class Beams extends PApplet {
 
 	// Kinect Filters
 	MatrixSmoother matrixSmoother;
+	PVectorMatrixSmoother depthMapZsmoother;
 	PImage kinectDepthFilteredImage;
 
 	// PEASYCAM
@@ -153,6 +155,7 @@ public class Beams extends PApplet {
 	void setupKinectFilters() {
 		matrixSmoother = new MatrixSmoother(kinectWidth, kinectHeight);
 		kinectDepthFilteredImage = new PImage(kinectWidth, kinectHeight);
+		depthMapZsmoother = new PVectorMatrixSmoother(kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -238,13 +241,17 @@ public class Beams extends PApplet {
 		// UPDATE FILTERS
 		matrixSmoother.updateStream(depthMap);
 
+		depthMapZsmoother.updateStream(realWorldMap);
+
 		// DRAW
 		background(0);
 
 		// this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
 		// image(kinectDepthFilteredImage, 0, 0);
 
-		this.drawPointsIn3D(realWorldMap);
+		// this.drawPointsIn3D(realWorldMap);
+
+		this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix());
 
 	}
 
@@ -279,6 +286,9 @@ public class Beams extends PApplet {
 			for (int y = 0; y < kinectHeight; y += res) {
 				int index = x + y * kinectWidth;
 				PVector realWorldPoint = realWorldPositions[index];
+				if (realWorldPoint == null) { // ~
+					continue;
+				}
 				if (realWorldPoint.z == 0) { // ~
 					continue;
 				}
