@@ -50,9 +50,7 @@ public class Beams extends PApplet {
 	PVector[] realWorldMap;
 
 	// Kinect Filters
-	MatrixSmoother matrixSmoother;
 	PVectorMatrixSmoother depthMapZsmoother;
-	PImage kinectDepthFilteredImage;
 
 	// PEASYCAM
 	PeasyCam cam;
@@ -153,8 +151,6 @@ public class Beams extends PApplet {
 	}
 
 	void setupKinectFilters() {
-		matrixSmoother = new MatrixSmoother(kinectWidth, kinectHeight);
-		kinectDepthFilteredImage = new PImage(kinectWidth, kinectHeight);
 		depthMapZsmoother = new PVectorMatrixSmoother(kinectWidth, kinectHeight);
 	}
 
@@ -239,19 +235,11 @@ public class Beams extends PApplet {
 		PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
-		matrixSmoother.updateStream(depthMap);
-
 		depthMapZsmoother.updateStream(realWorldMap);
 
 		// DRAW
 		background(0);
 
-		// this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
-		// image(kinectDepthFilteredImage, 0, 0);
-
-		// this.drawPointsIn3D(realWorldMap);
-
-		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), null);
 		this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
 
 	}
