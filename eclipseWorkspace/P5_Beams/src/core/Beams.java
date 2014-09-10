@@ -238,22 +238,20 @@ public class Beams extends PApplet {
 		PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
-		// depthMapZsmoother.updateStream(realWorldMap);
-		// if (frameCount % 30 == 0) {
-		// System.out.println("hi");
-		depthMapSlitScanner.updateStream(realWorldMap.clone(), 30);
-		// }
+		depthMapSlitScanner.updateStream(depthMap, 20);
 
 		// DRAW
 		background(0);
 
-		this.drawPointsIn3D(realWorldMap, null);
-		this.drawPointsIn3D(depthMap, null);
+		// this.drawPointsIn3D(realWorldMap, null);
+		// this.drawPointsIn3D(depthMap, null);
 
 		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), colorImg.pixels);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), null);
 		// this.drawPointsIn3D(depthMapSlitScanner.outputMatrix, null);
+
+		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null);
 
 	}
 
@@ -320,7 +318,7 @@ public class Beams extends PApplet {
 		translate(swidth / 2, sheight / 2, 0);
 		rotateX(radians(180));
 		strokeWeight(1);
-		stroke(255, 0, 0);
+		stroke(255);
 
 		int res = 3;
 		for (int x = 0; x < kinectWidth; x += res) {
