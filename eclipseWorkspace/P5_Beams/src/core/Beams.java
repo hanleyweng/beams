@@ -236,7 +236,7 @@ public class Beams extends PApplet {
 		depthMap = kinect.depthMap();
 		realWorldMap = kinect.depthMapRealWorld();
 		// PImage depthImg = kinect.depthImage();
-		// PImage colorImg = kinect.rgbImage();
+		PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
 		matrixSmoother.updateStream(depthMap);
@@ -251,7 +251,8 @@ public class Beams extends PApplet {
 
 		// this.drawPointsIn3D(realWorldMap);
 
-		this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix());
+		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), null);
+		this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
 
 	}
 
@@ -271,14 +272,14 @@ public class Beams extends PApplet {
 	}
 
 	// Note - we have two options for locationData to feed in; either realWorldPositions or depthPositions which we then compute real world positions with depthToWorld(x,y,rawDepth)
-	public void drawPointsIn3D(PVector[] realWorldPositions) {
+	public void drawPointsIn3D(PVector[] realWorldPositions, int[] pixelColors) {
 		pushMatrix();
 		pushStyle();
 
 		translate(swidth / 2, sheight / 2, 0);
 		rotateX(radians(180));
-		colorMode(HSB, 100);
-		strokeWeight(1);
+		// colorMode(HSB, 100);
+		strokeWeight(2);
 		stroke(0, 0, 100);
 
 		int res = 3;
@@ -286,11 +287,19 @@ public class Beams extends PApplet {
 			for (int y = 0; y < kinectHeight; y += res) {
 				int index = x + y * kinectWidth;
 				PVector realWorldPoint = realWorldPositions[index];
+
+				// Decide if we should draw point
 				if (realWorldPoint == null) { // ~
 					continue;
 				}
 				if (realWorldPoint.z == 0) { // ~
 					continue;
+				}
+
+				// Set color of point
+				if (pixelColors != null) {
+					int currColor = pixelColors[index];
+					stroke(currColor);
 				}
 
 				// Draw Point
