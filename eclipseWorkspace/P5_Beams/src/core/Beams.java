@@ -1,4 +1,6 @@
 package core;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 import processing.core.*; // This is from Processing2.2.1
 import processing.video.*;
 import util.OscHandler;
@@ -11,6 +13,7 @@ import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
+import gab.opencv.*;
 
 // TODO: Add Analysis'
 
@@ -43,6 +46,9 @@ public class Beams extends PApplet {
 	
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
+	
+	// OpenCV
+	OpenCV opencv;
 
 	// Filters
 	RemoveRed removeRedFilter = new RemoveRed();
@@ -74,6 +80,8 @@ public class Beams extends PApplet {
 			this.setupMovie();
 		}
 		
+		// setup opencv
+		opencv = new OpenCV(this, rgbCamWidth, rgbCamHeight);
 		if (RECEIVE_OSC) {
 			oscHandler = new OscHandler();
 		}
