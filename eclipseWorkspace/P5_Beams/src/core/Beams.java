@@ -1,11 +1,16 @@
 package core;
 
+import java.util.Iterator;
+
 import peasy.PeasyCam;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.video.Capture;
 import processing.video.Movie;
+import toxi.geom.Vec3D;
+import toxi.geom.mesh.Face;
+import toxi.geom.mesh.TriangleMesh;
 import util.OscHandler;
 import SimpleOpenNI.SimpleOpenNI;
 import codeanticode.syphon.SyphonServer;
@@ -151,6 +156,12 @@ public class Beams extends PApplet {
 		// SETUP PEASY CAM
 		cam = new PeasyCam(this, swidth * 0.5, sheight * 0.5, -2000, 2700);
 
+		// PERSPECTIVE
+		float cameraZ = (height / 2.0f) / tan(PI * 60.0f / 360.0f);
+		// Default // perspective(PI / 3.0f, width * 1f / height, cameraZ / 10.0f, cameraZ * 10.0f);
+		// Set clipping plane further out
+		perspective(PI / 3.0f, width * 1f / height, cameraZ / 10.0f, cameraZ * 1000.0f);
+
 	}
 
 	void setupKinectFilters() {
@@ -247,7 +258,8 @@ public class Beams extends PApplet {
 		background(0);
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null);
-		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
+		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
+		this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix());
 
 	}
 
@@ -346,40 +358,124 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
-	public void drawMeshIn3D(int[] depthValues, int[] pixelColors) {
+	public void drawMeshIn3D(int[] depthValues) {
+		TriangleMesh mesh = new TriangleMesh();
+
 		pushMatrix();
 		pushStyle();
 
 		translate(swidth / 2, sheight / 2, 0);
 		rotateX(radians(180));
-		strokeWeight(1);
-		stroke(255);
+		// strokeWeight(1);
+		// stroke(255);
+		colorMode(HSB, 100);
+		lights();
+		// // DEFAULT LIGHTS
+		// lightFalloff(1, 0, 0); // like fill - for lights
+		// lightSpecular(0, 0, 0); // like fill - for lights
+		// ambientLight(0, 0, 50);
+		// // directionalLight(0, 0, 75, 0, 0, -1);
+		// // directionalLight(0, 0, 75, 0, -1, 0);
+		// directionalLight(0, 0, 75, 0, -1, -1);
+		directionalLight(0, 0, 75, -1, -1, -1);
 
-		int res = 3;
+		PVector pointLightHsb = new PVector(0, 0, 100);
+		pointLight(pointLightHsb.x, pointLightHsb.y, pointLightHsb.z, 0, -500, 0);
+		noStroke();
+
+		int res = 6;
+
+		// ArrayList<Vec3D> realWorldPoints = new ArrayList<Vec3D>();
+		Vec3D[] realWorldPoints = new Vec3D[kinectWidth * kinectHeight];
+		// Store PVectors of points in real world locations
 		for (int x = 0; x < kinectWidth; x += res) {
 			for (int y = 0; y < kinectHeight; y += res) {
 				int index = x + y * kinectWidth;
-				// int depth = depthValues[index];
-				//
-				// PVector realWorldPoint = new PVector();
-				// kinect.convertProjectiveToRealWorld(new PVector(x, y, depth), realWorldPoint);
-				//
-				// // Decide if we should draw point
-				// if (realWorldPoint.z == 0) { // ~
-				// continue;
-				// }
-				//
-				// // Set color of point
-				// if (pixelColors != null) {
-				// int currColor = pixelColors[index];
-				// stroke(currColor);
-				// }
-				//
-				// // Draw Point
-				// point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+				int depth = depthValues[index];
+				PVector realWorldPoint = new PVector();
+				kinect.convertProjectiveToRealWorld(new PVector(x, y, depth), realWorldPoint);
+				Vec3D point = new Vec3D(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+				realWorldPoints[index] = point;
+			}
+		}
+		// Generate meshes to store
+		for (int x = 0; x < kinectWidth - res; x += res) {
+			for (int y = 0; y < kinectHeight - res; y += res) {
+
+				// Get Quad of points
+				Vec3D[] quadPoints = new Vec3D[4];
+				// Quad goes: TopLeft, TopRight, BottomRight, BottomLeft
+				boolean filteredOut = false;
+				for (int i = 0; i < 4; i++) {
+					// v- instead of incrementing by one here, it perhaps should be res actually!
+					int cx = x;
+					int cy = y;
+					if (i == 1) {
+						cx += res;
+					}
+					if (i == 2) {
+						cx += res;
+						cy += res;
+					}
+					if (i == 3) {
+						cy += res;
+					}
+					int index = cx + cy * kinectWidth;
+					Vec3D curVec = realWorldPoints[index];
+					if (curVec.z == 0) {
+						filteredOut = true;
+						continue;
+					}
+					quadPoints[i] = curVec;
+				}
+				if (!filteredOut) {
+					// Filter out faces that stretch very long distances
+					int tooFarDistance = 70;
+					if (Math.abs(quadPoints[0].z - quadPoints[1].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+					if (Math.abs(quadPoints[0].z - quadPoints[2].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+					if (Math.abs(quadPoints[0].z - quadPoints[3].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+					if (Math.abs(quadPoints[1].z - quadPoints[2].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+					if (Math.abs(quadPoints[1].z - quadPoints[3].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+					if (Math.abs(quadPoints[2].z - quadPoints[3].z) > tooFarDistance) {
+						filteredOut = true;
+					}
+				}
+
+				if (filteredOut) {
+					// if filtered out continue without adding faces
+					continue;
+				}
+
+				// Generate 2 faces
+				mesh.addFace(quadPoints[0], quadPoints[1], quadPoints[3]);
+				mesh.addFace(quadPoints[1], quadPoints[2], quadPoints[3]);
 
 			}
 		}
+
+		// Draw Mesh
+		fill(25, 60, 80);
+
+		beginShape(TRIANGLES);
+		// iterate over all faces/triangles of the mesh
+		for (Iterator<Face> i = mesh.faces.iterator(); i.hasNext();) {
+			Face f = (Face) i.next();
+			// create vertices for each corner point
+			vertex(f.a);
+			vertex(f.b);
+			vertex(f.c);
+		}
+		endShape();
 
 		popStyle();
 		popMatrix();
@@ -402,6 +498,10 @@ public class Beams extends PApplet {
 		v = Math.min(biggerValue, v);
 		v = Math.max(smallerValue, v);
 		return v;
+	}
+
+	void vertex(Vec3D v) {
+		vertex(v.x, v.y, v.z);
 	}
 
 }
