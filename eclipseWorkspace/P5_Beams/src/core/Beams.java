@@ -145,7 +145,7 @@ public class Beams extends PApplet {
 		// SETUP KINECT FILTERS
 		this.setupKinectFilters();
 
-		// SETUP PEASY CAM 
+		// SETUP PEASY CAM
 		cam = new PeasyCam(this, swidth * 0.5, sheight * 0.5, -2000, 2700);
 
 	}
@@ -241,8 +241,10 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
-		this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
-		image(kinectDepthFilteredImage, 0, 0);
+		// this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
+		// image(kinectDepthFilteredImage, 0, 0);
+
+		this.drawPointsIn3D(realWorldMap);
 
 	}
 
@@ -259,6 +261,36 @@ public class Beams extends PApplet {
 			image.pixels[i] = 0xff000000 | (value << 16) | (value << 8) | value;
 		}
 		image.updatePixels();
+	}
+
+	// Note - we have two options for locationData to feed in; either realWorldPositions or depthPositions which we then compute real world positions with depthToWorld(x,y,rawDepth)
+	public void drawPointsIn3D(PVector[] realWorldPositions) {
+		pushMatrix();
+		pushStyle();
+
+		translate(swidth / 2, sheight / 2, 0);
+		rotateX(radians(180));
+		colorMode(HSB, 100);
+		strokeWeight(1);
+		stroke(0, 0, 100);
+
+		int res = 3;
+		for (int x = 0; x < kinectWidth; x += res) {
+			for (int y = 0; y < kinectHeight; y += res) {
+				int index = x + y * kinectWidth;
+				PVector realWorldPoint = realWorldPositions[index];
+				if (realWorldPoint.z == 0) { // ~
+					continue;
+				}
+
+				// Draw Point
+				point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+
+			}
+		}
+
+		popStyle();
+		popMatrix();
 	}
 
 	/**
