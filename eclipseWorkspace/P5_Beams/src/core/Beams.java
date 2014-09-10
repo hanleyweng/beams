@@ -1,12 +1,13 @@
 package core;
 
-import java.util.ArrayList;
-
-import processing.core.*; // This is from Processing2.2.1
-import processing.video.*;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.video.Capture;
+import processing.video.Movie;
 import util.OscHandler;
-import SimpleOpenNI.*;
-import codeanticode.syphon.*;
+import SimpleOpenNI.SimpleOpenNI;
+import codeanticode.syphon.SyphonServer;
 import filter.DepthThresholder;
 import filter.Posterize;
 import filter.RemoveRed;
@@ -14,6 +15,8 @@ import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
+import filter3d.MatrixSmoother;
+// This is from Processing2.2.1
 
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
@@ -231,10 +234,6 @@ public class Beams extends PApplet {
 		this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
 		image(kinectDepthFilteredImage, 0, 0);
 
-		// image(depthImg, 0, 0);
-
-		// TODO: feed depthMapArray into a filter for a smootherMatrix
-
 	}
 
 	public void setDepthMatrixToImage(int[] matrix, int matrixMaxValue, PImage image) {
@@ -252,74 +251,7 @@ public class Beams extends PApplet {
 		image.updatePixels();
 	}
 
-	/**
-	 * A filter ideal for efficiently smoothing out the noisy kinect depthMap.
-	 * 
-	 * This object should be used live. It takes in a matrix every time it is updated.
-	 * 
-	 * @author hanleyweng
-	 * 
-	 */
-	public class MatrixSmoother {
-
-		int maxMatrices;
-
-		ArrayList<int[]> matrices;
-
-		int[] smootherMatrix;
-
-		int matrixMaxValue;
-
-		int matrixWidth, matrixHeight;
-
-		MatrixSmoother(int matrixWidth, int matrixHeight) {
-			this.matrixWidth = matrixWidth;
-			this.matrixHeight = matrixHeight;
-			maxMatrices = 1;
-			matrices = new ArrayList<int[]>();
-			matrixMaxValue = Integer.MIN_VALUE;
-
-			smootherMatrix = new int[matrixWidth * matrixHeight];
-		}
-
-		void updateStream(int[] matrix) {
-
-			// Add Matrix
-			matrices.add(0, matrix);
-
-			// For every pixel. Store that pixel to smootherMatrix if it isn't zero. If it is zero, try the next matrix.
-			for (int i = 0; i < matrix.length; i++) {
-				for (int m = 0; m < matrices.size(); m++) {
-					int[] curMatrix = matrices.get(m);
-					int value = curMatrix[i];
-					if (value > matrixMaxValue) {
-						matrixMaxValue = value;
-					}
-					if (value != 0) {
-						smootherMatrix[i] = value;
-						break;
-					}
-					// since we don't have a clause here for what to do when all pixels are zero; it will continue to use it's historic values as opposed to reverting back to zero.
-				}
-			}
-
-			// Restrict size
-			while (matrices.size() > maxMatrices) {
-				// Remove last item if too full
-				matrices.remove(matrices.size() - 1);
-			}
-
-		}
-
-		int[] getSmootherMatrix() {
-			return smootherMatrix;
-		}
-
-		int getMatrixMaxValue() {
-			return matrixMaxValue;
-		}
-
-	}
+	
 
 	/**
 	 * same as map() function, except values are capped at start2 and stop2
