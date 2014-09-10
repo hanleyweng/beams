@@ -196,18 +196,16 @@ public class Beams extends PApplet {
 			outputImg = depthThresholder.getFilteredImage(mov);
 			outputImg = zaxisContours.getFilteredImage(outputImg);
 			image(outputImg, 0, 0);
+
+			// draw filtered image
+			if (outputImg != null) {
+				set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
+			}
 		}
 
 		// ///////////////////////
-
-		// draw filtered image
-		if (outputImg != null) {
-			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
-		}
-
-		// add any inbuilt p5 filters here
-		// ...
-
+		// SYPHON
+		
 		if (SEND_TO_SYPHON) {
 			if (outputImg != null) {
 				syphonServer.sendImage(outputImg);
