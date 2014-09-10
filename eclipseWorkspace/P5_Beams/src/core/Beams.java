@@ -228,7 +228,6 @@ public class Beams extends PApplet {
 		matrixSmoother.updateStream(depthMap);
 
 		// DRAW
-		// this.drawDepthMatrix(matrixSmoother.getSmootherMatrix(), matrixSmoother.matrixMaxValue, matrixSmoother.matrixWidth, matrixSmoother.matrixHeight);
 		this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
 		image(kinectDepthFilteredImage, 0, 0);
 
@@ -251,18 +250,6 @@ public class Beams extends PApplet {
 			image.pixels[i] = 0xff000000 | (value << 16) | (value << 8) | value;
 		}
 		image.updatePixels();
-	}
-
-	public void drawDepthMatrix(int[] matrix, int mmaxValue, int mwidth, int mheight) {
-		for (int x = 0; x < mwidth; x++) {
-			for (int y = 0; y < mheight; y++) {
-				int index = x + y * mwidth;
-				int matrixValue = matrix[index];
-				int displayValue = (int) mapWithCap(matrixValue, 0, mmaxValue, 255, 0);
-				stroke(displayValue);
-				point(x, y);
-			}
-		}
 	}
 
 	/**
