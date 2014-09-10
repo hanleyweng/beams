@@ -16,8 +16,8 @@ import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
-import filter3d.MatrixSmoother;
 import filter3d.PVectorMatrixSmoother;
+import filter3d.SlitScan3d;
 
 @SuppressWarnings("serial")
 public class Beams extends PApplet {
@@ -51,6 +51,7 @@ public class Beams extends PApplet {
 
 	// Kinect Filters
 	PVectorMatrixSmoother depthMapZsmoother;
+	SlitScan3d depthMapSlitScanner;
 
 	// PEASYCAM
 	PeasyCam cam;
@@ -77,6 +78,7 @@ public class Beams extends PApplet {
 
 	@Override
 	public void setup() {
+		frameRate(30);
 		size(swidth, sheight, OPENGL);
 
 		// INITIALIZE CHOSEN CAMERA
@@ -152,6 +154,7 @@ public class Beams extends PApplet {
 
 	void setupKinectFilters() {
 		depthMapZsmoother = new PVectorMatrixSmoother(kinectWidth, kinectHeight);
+		depthMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -235,12 +238,19 @@ public class Beams extends PApplet {
 		PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
-		depthMapZsmoother.updateStream(realWorldMap);
+		// depthMapZsmoother.updateStream(realWorldMap);
+		// if (frameCount % 30 == 0) {
+		// System.out.println("hi");
+		depthMapSlitScanner.updateStream(realWorldMap.clone(), 30);
+		// }
 
 		// DRAW
 		background(0);
 
-		this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
+		// this.drawPointsIn3D(depthMapZsmoother.getSmootherMatrix(), colorImg.pixels);
+		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), colorImg.pixels);
+		this.drawPointsIn3D(depthMapSlitScanner.getFilteredPMatrix(), null);
+		// this.drawPointsIn3D(depthMapSlitScanner.outputMatrix, null);
 
 	}
 
@@ -268,7 +278,7 @@ public class Beams extends PApplet {
 		rotateX(radians(180));
 		// colorMode(HSB, 100);
 		strokeWeight(2);
-		stroke(0, 0, 100);
+		stroke(255);
 
 		int res = 3;
 		for (int x = 0; x < kinectWidth; x += res) {
