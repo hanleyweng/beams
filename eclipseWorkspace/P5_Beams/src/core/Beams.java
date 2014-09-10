@@ -47,8 +47,6 @@ public class Beams extends PApplet {
 	static int kinectHeight = 480;
 	int[] depthMap;
 	PVector[] realWorldMap;
-	// http://forum.processing.org/one/topic/cannot-get-this-program-to-record.html
-	float[] depthLookUp = new float[2048]; // We'll use a lookup table so that we don't have to repeat the math over and over
 
 	// Kinect Filters
 	MatrixSmoother matrixSmoother;
@@ -143,12 +141,6 @@ public class Beams extends PApplet {
 		// align depth data to image data
 		kinect.alternativeViewPointDepthToImage();
 		kinect.setDepthColorSyncEnabled(true);
-
-		// //////////////////////////
-		// Lookup table for all possible depth values (0 - 2047)
-		for (int i = 0; i < depthLookUp.length; i++) {
-			depthLookUp[i] = rawDepthToMeters(i);
-		}
 
 		// SETUP KINECT FILTERS
 		this.setupKinectFilters();
@@ -252,7 +244,6 @@ public class Beams extends PApplet {
 		// this.setDepthMatrixToImage(matrixSmoother.getSmootherMatrix(), matrixSmoother.getMatrixMaxValue(), kinectDepthFilteredImage);
 		// image(kinectDepthFilteredImage, 0, 0);
 
-		this.drawPointsIn3D(depthMap);
 		this.drawPointsIn3D(realWorldMap);
 
 	}
@@ -300,60 +291,6 @@ public class Beams extends PApplet {
 
 		popStyle();
 		popMatrix();
-	}
-
-	public void drawPointsIn3D(int[] depthValues) {
-		pushMatrix();
-		pushStyle();
-
-		translate(swidth / 2, sheight / 2, 0);
-		rotateX(radians(180));
-		colorMode(HSB, 100);
-		strokeWeight(2);
-		stroke(30, 65, 100);
-
-		int res = 3;
-		for (int x = 0; x < kinectWidth; x += res) {
-			for (int y = 0; y < kinectHeight; y += res) {
-				int index = x + y * kinectWidth;
-				int depth = depthValues[index];
-				if (depth == 0) {
-					continue;
-				}
-
-				PVector realWorldPoint = depthToWorld(x, y, depth);
-
-				// Draw Point
-				point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
-
-			}
-		}
-
-		popStyle();
-		popMatrix();
-	}
-
-	// These functions come from: http://graphics.stanford.edu/~mdfisher/Kinect.html
-	float rawDepthToMeters(int depthValue) {
-		if (depthValue < 2047) {
-			return (float) (1.0 / ((double) (depthValue) * -0.0030711016 + 3.3309495161));
-		}
-		return 0.0f;
-	}
-
-	PVector depthToWorld(int x, int y, int depthValue) {
-
-		final double fx_d = 1.0 / 5.9421434211923247e+02;
-		final double fy_d = 1.0 / 5.9104053696870778e+02;
-		final double cx_d = 3.3930780975300314e+02;
-		final double cy_d = 2.4273913761751615e+02;
-
-		PVector result = new PVector();
-		double depth = depthLookUp[depthValue];// rawDepthToMeters(depthValue);
-		result.x = (float) ((x - cx_d) * depth * fx_d);
-		result.y = (float) ((y - cy_d) * depth * fy_d);
-		result.z = (float) (depth);
-		return result;
 	}
 
 	/**
