@@ -26,5 +26,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/oscP5/oscP5.jar"/>
+	<classpathentry kind="lib" path="lib/opencv_processing/library/opencv_processing.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="P5_Beams/lib/opencv_processing/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/opencv_processing/library/opencv-245.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
