@@ -26,5 +26,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/oscP5/oscP5.jar"/>
+	<classpathentry kind="lib" path="lib/peasycam/library/peasycam.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
