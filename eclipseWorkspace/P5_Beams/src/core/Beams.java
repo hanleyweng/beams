@@ -259,10 +259,10 @@ public class Beams extends PApplet {
 		frameDifferencer.updateStream(depthMap, 30);
 		curDepthMatrix = frameDifferencer.getOutputMatrix();
 
-		// depthMapSlitScanner.updateStream(curDepthMatrix, 20);
-		// curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
+		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
+		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
 
-		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
+		colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
 		// DRAW
 		background(0);
@@ -274,7 +274,7 @@ public class Beams extends PApplet {
 		// this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 6);
 
 		// this.drawMeshIn3D(curDepthMatrix, 3);
-		this.drawMeshIn3D(curDepthMatrix, colorImg.pixels, 3);
+		this.drawMeshIn3D(curDepthMatrix, colorMapSlitScanner.getFilteredMatrix(), 3);
 
 	}
 
