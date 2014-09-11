@@ -1,5 +1,6 @@
 package core;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import peasy.PeasyCam;
@@ -22,6 +23,7 @@ import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
 import filter3d.BasicFrameDifferencer;
+import filter3d.ContourMatrixFromDepth;
 import filter3d.PVectorMatrixSmoother;
 import filter3d.SlitScan3d;
 
@@ -60,6 +62,7 @@ public class Beams extends PApplet {
 	SlitScan3d depthMapSlitScanner;
 	SlitScan3d colorMapSlitScanner;
 	BasicFrameDifferencer frameDifferencer;
+	ContourMatrixFromDepth contourMatrixer;
 
 	// PEASYCAM
 	PeasyCam cam;
@@ -171,6 +174,7 @@ public class Beams extends PApplet {
 		depthMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
 		colorMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
 		frameDifferencer = new BasicFrameDifferencer(5, kinectWidth, kinectHeight);
+		contourMatrixer = new ContourMatrixFromDepth();
 	}
 
 	void setupMovie() {
@@ -249,20 +253,20 @@ public class Beams extends PApplet {
 		// UPDATE
 		kinect.update();
 		depthMap = kinect.depthMap();
-		realWorldMap = kinect.depthMapRealWorld();
+		// realWorldMap = kinect.depthMapRealWorld();
 		// PImage depthImg = kinect.depthImage();
-		PImage colorImg = kinect.rgbImage();
+		// PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
 		int[] curDepthMatrix = depthMap;
 
-		frameDifferencer.updateStream(depthMap, 30);
-		curDepthMatrix = frameDifferencer.getOutputMatrix();
+		// frameDifferencer.updateStream(depthMap, 30);
+		// curDepthMatrix = frameDifferencer.getOutputMatrix();
 
 		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
 		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
 
-		colorMapSlitScanner.updateStream(colorImg.pixels, 20);
+		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
 		// DRAW
 		background(0);
@@ -274,7 +278,10 @@ public class Beams extends PApplet {
 		// this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 6);
 
 		// this.drawMeshIn3D(curDepthMatrix, 3);
-		this.drawMeshIn3D(curDepthMatrix, colorMapSlitScanner.getFilteredMatrix(), 3);
+
+		// this.drawMeshIn3D(curDepthMatrix, colorMapSlitScanner.getFilteredMatrix(), 7);
+
+		this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
 
 	}
 
