@@ -334,6 +334,14 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
+	/**
+	 * Draws a point cloud from a depthMap.
+	 * 
+	 * @param depthValues
+	 * @param pixelColors
+	 *            - can be null
+	 * @param resolution
+	 */
 	public void drawPointsIn3D(int[] depthValues, int[] pixelColors, int resolution) {
 		pushMatrix();
 		pushStyle();
@@ -373,6 +381,14 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
+	/**
+	 * Draws mesh from a depthMap with color.
+	 * 
+	 * @param depthValues
+	 * @param pixelColors
+	 *            - can be null
+	 * @param resolution
+	 */
 	public void drawMeshIn3D(int[] depthValues, int[] pixelColors, int resolution) {
 		TriangleMesh mesh = new TriangleMesh();
 
