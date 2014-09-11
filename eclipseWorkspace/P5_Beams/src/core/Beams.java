@@ -1,6 +1,6 @@
 package core;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import peasy.PeasyCam;
 import processing.core.PApplet;
@@ -21,6 +21,7 @@ import filter.ScaledIn;
 import filter.SlitScan;
 import filter.ZaxisContours;
 import filter.ZaxisSlitScan;
+import filter3d.BasicFrameDifferencer;
 import filter3d.PVectorMatrixSmoother;
 import filter3d.SlitScan3d;
 
@@ -58,6 +59,7 @@ public class Beams extends PApplet {
 	PVectorMatrixSmoother depthMapZsmoother;
 	SlitScan3d depthMapSlitScanner;
 	SlitScan3d colorMapSlitScanner;
+	BasicFrameDifferencer frameDifferencer;
 
 	// PEASYCAM
 	PeasyCam cam;
@@ -168,6 +170,7 @@ public class Beams extends PApplet {
 		depthMapZsmoother = new PVectorMatrixSmoother(kinectWidth, kinectHeight);
 		depthMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
 		colorMapSlitScanner = new SlitScan3d(kinectWidth, kinectHeight);
+		frameDifferencer = new BasicFrameDifferencer(5, kinectWidth, kinectHeight);
 	}
 
 	void setupMovie() {
@@ -251,15 +254,27 @@ public class Beams extends PApplet {
 		PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
-		depthMapSlitScanner.updateStream(depthMap, 20);
-		colorMapSlitScanner.updateStream(colorImg.pixels, 20);
+		int[] curDepthMatrix = depthMap;
+
+		frameDifferencer.updateStream(depthMap, 30);
+		curDepthMatrix = frameDifferencer.getOutputMatrix();
+
+		// depthMapSlitScanner.updateStream(curDepthMatrix, 20);
+		// curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
+
+		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
 		// DRAW
 		background(0);
 
-		this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
+		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
-		this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
+		// this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
+
+		// this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 6);
+
+		// this.drawMeshIn3D(curDepthMatrix, 3);
+		this.drawMeshIn3D(curDepthMatrix, colorImg.pixels, 3);
 
 	}
 
@@ -358,7 +373,7 @@ public class Beams extends PApplet {
 		popMatrix();
 	}
 
-	public void drawMeshIn3D(int[] depthValues, int resolution) {
+	public void drawMeshIn3D(int[] depthValues, int[] pixelColors, int resolution) {
 		TriangleMesh mesh = new TriangleMesh();
 
 		pushMatrix();
@@ -399,6 +414,7 @@ public class Beams extends PApplet {
 			}
 		}
 		// Generate meshes to store
+		ArrayList<Integer> faceColors = new ArrayList<Integer>();
 		for (int x = 0; x < kinectWidth - res; x += res) {
 			for (int y = 0; y < kinectHeight - res; y += res) {
 
@@ -460,19 +476,29 @@ public class Beams extends PApplet {
 				mesh.addFace(quadPoints[0], quadPoints[1], quadPoints[3]);
 				mesh.addFace(quadPoints[1], quadPoints[2], quadPoints[3]);
 
+				// Add colors
+				if (pixelColors != null) {
+					faceColors.add(pixelColors[x + y * kinectWidth]);
+					faceColors.add(pixelColors[x + y * kinectWidth]);
+				}
+
 			}
 		}
 
 		// Draw Mesh
 		// fill(25, 60, 80);
 		stroke(0, 0, 100);
-		fill(70, 60, 80, 30);
+		noStroke();
+		fill(70, 60, 80, 60);
 
 		beginShape(TRIANGLES);
 		// iterate over all faces/triangles of the mesh
-		for (Iterator<Face> i = mesh.faces.iterator(); i.hasNext();) {
-			Face f = (Face) i.next();
-			// create vertices for each corner point
+		for (int i = 0; i < mesh.faces.size(); i++) {
+			if (pixelColors != null) {
+				fill(faceColors.get(i));
+			}
+
+			Face f = mesh.faces.get(i);
 			vertex(f.a);
 			vertex(f.b);
 			vertex(f.c);
