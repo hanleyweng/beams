@@ -26,8 +26,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/oscP5/oscP5.jar"/>
-	<classpathentry kind="lib" path="lib/peasycam/library/peasycam.jar"/>
 	<classpathentry kind="lib" path="lib/toxiclibs/toxiclibs_p5/library/toxiclibs_p5.jar"/>
 	<classpathentry kind="lib" path="lib/toxiclibs/toxiclibscore/library/toxiclibscore.jar"/>
+	<classpathentry kind="lib" path="lib/peasycam/library/peasycam.jar"/>
+	<classpathentry kind="lib" path="lib/opencv_processing/library/opencv_processing.jar"/>
+	<classpathentry kind="lib" path="lib/opencv_processing/library/opencv-245.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
