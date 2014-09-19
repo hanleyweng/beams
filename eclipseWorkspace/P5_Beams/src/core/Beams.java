@@ -286,6 +286,12 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
+		// Draw Background Image
+		cam.beginHUD();
+		setMatrixAsPImage(backgroundImage3to5, bgDepthMatrix);
+		image(backgroundImage3to5, 0, 0);
+		cam.endHUD();
+
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
 		// this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
@@ -302,13 +308,7 @@ public class Beams extends PApplet {
 
 		// this.drawPointsIn3D(curDepthMatrix, null, 10);
 
-		// this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
-
-		// Draw Background Image
-		cam.beginHUD();
-		setMatrixAsPImage(backgroundImage3to5, bgDepthMatrix);
-		image(backgroundImage3to5, 0, 0);
-		cam.endHUD();
+		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
 
 	}
 
