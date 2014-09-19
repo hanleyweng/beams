@@ -41,8 +41,8 @@ public class Beams extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 	static final String INPUT_MODE_MOVIE = "INPUT_MODE_MOVIE";
 
-	int swidth = 800;
-	int sheight = 600;
+	int swidth = 640 * 2;
+	int sheight = 480;
 
 	// Input - Camera
 	Capture rgbCam;
@@ -57,6 +57,7 @@ public class Beams extends PApplet {
 	int[] depthMap;
 	PVector[] realWorldMap;
 	PImage backgroundImage3to5;
+	PImage img3d;
 
 	// Kinect Filters
 	PVectorMatrixSmoother depthMapZsmoother;
@@ -286,10 +287,27 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
+		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
+
+		img3d = this.get(kinectWidth / 2, 0, kinectWidth, kinectHeight);
+
+		// draw rects
+		cam.beginHUD();
+		noFill();
+		stroke(255);
+		strokeWeight(1);
+		rect(0, 0, 640, 480);
+		rect(640, 0, 640, 480);
+		cam.endHUD();
+
 		// Draw Background Image
 		cam.beginHUD();
 		setMatrixAsPImage(backgroundImage3to5, bgDepthMatrix);
 		image(backgroundImage3to5, 0, 0);
+
+		// Draw 3d img
+		image(img3d, kinectWidth, 0);
+
 		cam.endHUD();
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
@@ -308,10 +326,14 @@ public class Beams extends PApplet {
 
 		// this.drawPointsIn3D(curDepthMatrix, null, 10);
 
-		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
-
 	}
 
+	public void keyPressed() {
+		if (key == 'c') {
+			cam.reset();
+		}
+	}
+	
 	public int[] getMatrixWithinDepthRange(int minDepthRange, int maxDepthRange, int[] depthMatrix) {
 		int[] outputMatrix = new int[depthMatrix.length];
 
