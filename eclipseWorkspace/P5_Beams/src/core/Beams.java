@@ -41,7 +41,7 @@ public class Beams extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 	static final String INPUT_MODE_MOVIE = "INPUT_MODE_MOVIE";
 
-	int swidth = 640 * 2;
+	int swidth = 640;
 	int sheight = 480;
 
 	// Input - Camera
@@ -56,8 +56,6 @@ public class Beams extends PApplet {
 	static int kinectHeight = 480;
 	int[] depthMap;
 	PVector[] realWorldMap;
-	PImage backgroundImage3to5;
-	PImage img3d;
 
 	// Kinect Filters
 	PVectorMatrixSmoother depthMapZsmoother;
@@ -164,9 +162,6 @@ public class Beams extends PApplet {
 
 		// SETUP KINECT FILTERS
 		this.setupKinectFilters();
-
-		// SETUP KINECT OTHER
-		backgroundImage3to5 = new PImage(kinectWidth, kinectHeight);
 
 		// SETUP PEASY CAM
 		cam = new PeasyCam(this, swidth * 0.5, sheight * 0.5, -2000, 2700);
@@ -289,34 +284,6 @@ public class Beams extends PApplet {
 
 		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
 
-		img3d = this.get(kinectWidth / 2, 0, kinectWidth, kinectHeight);
-
-		// draw rects
-		cam.beginHUD();
-		noFill();
-		stroke(255);
-		strokeWeight(1);
-		rect(0, 0, 640, 480);
-		rect(640, 0, 640, 480);
-		cam.endHUD();
-
-		// Draw Background Image
-		cam.beginHUD();
-		setMatrixAsPImage(backgroundImage3to5, bgDepthMatrix);
-		image(backgroundImage3to5, 0, 0);
-
-		// Draw 3d img
-		image(img3d, kinectWidth, 0);
-
-		cam.endHUD();
-
-		// Drawing FrameRate
-		cam.beginHUD();
-		fill(255);
-		textAlign(RIGHT, TOP);
-		text(frameRate, swidth - 20, 20);
-		cam.endHUD();
-
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
 		// this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
@@ -332,6 +299,13 @@ public class Beams extends PApplet {
 		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
 
 		// this.drawPointsIn3D(curDepthMatrix, null, 10);
+
+		// Drawing FrameRate
+		cam.beginHUD();
+		fill(255);
+		textAlign(RIGHT, TOP);
+		text(frameRate, swidth - 20, 20);
+		cam.endHUD();
 
 	}
 
