@@ -56,6 +56,7 @@ public class Beams extends PApplet {
 	static int kinectHeight = 480;
 	int[] depthMap;
 	PVector[] realWorldMap;
+	PImage backgroundImage3to5;
 
 	// Kinect Filters
 	PVectorMatrixSmoother depthMapZsmoother;
@@ -163,6 +164,9 @@ public class Beams extends PApplet {
 		// SETUP KINECT FILTERS
 		this.setupKinectFilters();
 
+		// SETUP KINECT OTHER
+		backgroundImage3to5 = new PImage(kinectWidth, kinectHeight);
+
 		// SETUP PEASY CAM
 		cam = new PeasyCam(this, swidth * 0.5, sheight * 0.5, -2000, 2700);
 
@@ -267,13 +271,17 @@ public class Beams extends PApplet {
 
 		// frameDifferencer.updateStream(depthMap, 30);
 		// curDepthMatrix = frameDifferencer.getOutputMatrix();
-		
-		curDepthMatrix = getMatrixWithinDepthRange(0, 2000, curDepthMatrix);
+
+		curDepthMatrix = getMatrixWithinDepthRange(0, 3000, curDepthMatrix);
 
 		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
 		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
 
 		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
+
+		// Background Image Update
+		int[] bgDepthMatrix = depthMap;
+		bgDepthMatrix = getMatrixWithinDepthRange(3000, 5000, bgDepthMatrix);
 
 		// DRAW
 		background(0);
@@ -292,7 +300,15 @@ public class Beams extends PApplet {
 
 		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
 
-		this.drawPointsIn3D(curDepthMatrix, null, 3);
+		// this.drawPointsIn3D(curDepthMatrix, null, 10);
+
+		// this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
+
+		// Draw Background Image
+		cam.beginHUD();
+		setMatrixAsPImage(backgroundImage3to5, bgDepthMatrix);
+		image(backgroundImage3to5, 0, 0);
+		cam.endHUD();
 
 	}
 
@@ -327,6 +343,40 @@ public class Beams extends PApplet {
 		image.updatePixels();
 	}
 
+	public void setMatrixAsPImage(PImage img, int[] depthValues) {
+
+		int minValue = Integer.MAX_VALUE;
+		int maxValue = Integer.MIN_VALUE;
+		for (int i = 0; i < depthValues.length; i++) {
+			int curValue = depthValues[i];
+			if (curValue > maxValue) {
+				maxValue = curValue;
+			}
+			if (curValue < minValue) {
+				minValue = curValue;
+			}
+		}
+
+		setMatrixAsPImage(img, depthValues, minValue, maxValue);
+
+	}
+
+	public void setMatrixAsPImage(PImage img, int[] depthValues, int minValue, int maxValue) {
+		// PImage img = new PImage(width, height); // <- this method may be inefficient, may be more efficient to pass in an existing PImage
+
+		img.loadPixels();
+		for (int i = 0; i < depthValues.length; i++) {
+			int grayValue = 0;
+			int curValue = depthValues[i];
+			if (curValue != 0) {
+				grayValue = (int) map(depthValues[i], minValue, maxValue, 0, 255);
+			}
+			img.pixels[i] = 0xff000000 | (grayValue << 16) | (grayValue << 8) | grayValue;
+		}
+
+		img.updatePixels();
+	}
+
 	/**
 	 * Draws a point cloud from a depthMap.
 	 * 
@@ -341,7 +391,10 @@ public class Beams extends PApplet {
 
 		translate(swidth / 2, sheight / 2, 0);
 		rotateX(radians(180));
-		strokeWeight(1);
+
+		int currColor = 0xff000000 | (255 << 24) | (255 << 16) | (255 << 8) | 255;
+		// int currColor2 = 0xff000000 | (150 << 24) | (255 << 16) | (255 << 8) | 255;
+
 		stroke(255);
 
 		int res = resolution;
@@ -360,11 +413,30 @@ public class Beams extends PApplet {
 
 				// Set color of point
 				if (pixelColors != null) {
-					int currColor = pixelColors[index];
-					stroke(currColor);
+					currColor = pixelColors[index];
+
+					// int r = (currColor >> 16) & 0xFF;
+					// int g = (currColor >> 8) & 0xFF;
+					// int b = currColor & 0xFF;
+					// int a = 100; // (currColor>>24)&0xFF;
+
+					// currColor2 = (a << 24) | (r << 16) | (g << 8) | b;
+
+					// Draw Additional Point
+					// stroke(currColor2);
+
+					// stroke(r, g, b, 10);
+					// strokeWeight(30);
+					// point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+					//
+					// stroke(r, g, b, 70);
+					// strokeWeight(10);
+					// point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
+
 				}
 
-				// Draw Point
+				stroke(currColor);
+				strokeWeight(3);
 				point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
 
 			}
