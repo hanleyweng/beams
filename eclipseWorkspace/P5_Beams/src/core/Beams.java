@@ -286,8 +286,8 @@ public class Beams extends PApplet {
 
 		// DRAW
 		background(0);
-
-		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3);
+		
+		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient(curDepthMatrix, frameCount * 5f, frameCount), 15);
 
 		img3d = this.get(kinectWidth / 2, 0, kinectWidth, kinectHeight);
 
