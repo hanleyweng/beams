@@ -12,7 +12,8 @@ public class Filter {
 	
 	public PImage copyImage(PImage img) {
 		// A more efficient method may be possible - e.g. TimeDisplacement example P5 sketch.
-		return img.get();
+		// must use get, else the original image is manipulated directly. (since this is a pointer)
+		return img.get(); 
 	}
 
 }

@@ -1,12 +1,18 @@
 package core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
 import processing.core.*; // This is from Processing2.2.1
 import processing.video.*;
 import util.OscHandler;
 import SimpleOpenNI.*;
 import codeanticode.syphon.*;
 import filter.DepthThresholder;
+import filter.KeepOnlyRed;
+import filter.Lines;
+import filter.MedianBlur;
+import filter.MorphologicalGradient;
+import filter.MorphologicalSmoothing;
 import filter.Posterize;
 import filter.RemoveRed;
 import filter.ScaledIn;
@@ -32,14 +38,14 @@ public class Beams extends PApplet {
 	static final String INPUT_MODE_KINECT = "INPUT_MODE_KINECT";
 	static final String INPUT_MODE_MOVIE = "INPUT_MODE_MOVIE";
 
-	int swidth = 800;
-	int sheight = 600;
-
 	// Input - Camera
 	Capture rgbCam;
-	int rgbCamWidth = 640;
-	int rgbCamHeight = 480;
+	public static int rgbCamWidth = 640;
+	public static int rgbCamHeight = 480;
 	int rgbCamFps = 30;
+	
+	int swidth = rgbCamWidth*2;
+	int sheight = rgbCamHeight;
 
 	// Input - Kinect
 	SimpleOpenNI kinect;
@@ -52,13 +58,18 @@ public class Beams extends PApplet {
 
 	// Filters
 	RemoveRed removeRedFilter = new RemoveRed();
+	KeepOnlyRed keepOnlyRed = new KeepOnlyRed();
 	DepthThresholder depthThresholder = new DepthThresholder();
 	SlitScan slitScan = new SlitScan();
 	ScaledIn scaledIn = new ScaledIn();
 	ZaxisSlitScan zaxisSlit = new ZaxisSlitScan();
+	
 	ZaxisContours zaxisContours = new ZaxisContours();
 	Posterize posterize = new Posterize();
-
+	MedianBlur medianBlur;  					 // setup in setup(): requires opencv.
+	MorphologicalGradient morphologicalGradient; // setup in setup(): requires opencv.
+	MorphologicalSmoothing morphologicalSmoothing; // setup in setup(): requires opencv.
+	Lines lines = new Lines(this);
 	PImage outputImg;
 
 	// Handle osc messages from PureData.
@@ -82,6 +93,10 @@ public class Beams extends PApplet {
 		
 		// setup opencv
 		opencv = new OpenCV(this, rgbCamWidth, rgbCamHeight);
+		medianBlur = new MedianBlur(opencv);		
+		morphologicalGradient = new MorphologicalGradient(opencv);
+		morphologicalSmoothing = new MorphologicalSmoothing(opencv);
+		
 		if (RECEIVE_OSC) {
 			oscHandler = new OscHandler();
 		}
@@ -190,11 +205,12 @@ public class Beams extends PApplet {
 			// popStyle();
 
 			// outputImg = zaxisSlit.getFilteredImage(depthImg, colorImg);
-			outputImg = zaxisContours.getFilteredImage(depthImg);
-
-			image(outputImg, 0, 0);
+			outputImg = depthThresholder.getFilteredImage(depthImg);
+			outputImg = zaxisContours.getFilteredImage(outputImg);
+			outputImg = slitScan.getFilteredImage(outputImg);
 
 		}
+		
 		
 		// DRAW FOR MOVIE
 		if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
@@ -202,15 +218,32 @@ public class Beams extends PApplet {
 				mov.read();
 			}
 			outputImg = depthThresholder.getFilteredImage(mov);
-			outputImg = zaxisContours.getFilteredImage(outputImg);
-			image(outputImg, 0, 0);
+			outputImg = slitScan.getFilteredImage(outputImg);
+			outputImg = morphologicalSmoothing.getFilteredImage(outputImg);
+			//outputImg = posterize.getFilteredImage(outputImg);
+			//outputImg = zaxisContours.getFilteredImage(outputImg);
 		}
-
-		// ///////////////////////
+		// DRAW FOR MOVIE
+		PImage outputImg2 = null;
+		if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
+			//outputImg2 = morphologicalSmoothing.getFilteredImage(outputImg);
+			//outputImg2 = lines.drawLines(outputImg2);
+			//outputImg2 = slitScan.getFilteredImage(outputImg);
+			//outputImg2 = morphologicalGradient.getFilteredImage(outputImg2);
+			//outputImg = posterize.getFilteredImage(outputImg);
+			//outputImg = zaxisContours.getFilteredImage(outputImg);
+		}
+		
 
 		// draw filtered image
 		if (outputImg != null) {
 			set(0, 0, outputImg); // faster way of drawing (non-manipulated) image
+			//fill(0);
+			//rect(rgbCamWidth, 0, rgbCamWidth, rgbCamHeight);
+			
+			/////////// IVE BEEN PLAYING AROUND HERE!
+			//image(outputImg2, rgbCamWidth, 0);
+//			set(rgbCamWidth, 0, outputImg2);
 		}
 
 		// add any inbuilt p5 filters here
@@ -219,6 +252,7 @@ public class Beams extends PApplet {
 		if (SEND_TO_SYPHON) {
 			if (outputImg != null) {
 				syphonServer.sendImage(outputImg);
+				//syphonServer.sendImage(get(rgbCamWidth,0,rgbCamWidth, rgbCamHeight));
 			}
 		}
 

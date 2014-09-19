@@ -1,5 +1,6 @@
 package filter;
-import processing.core.PImage;
+//import processing.core.PImage;
+import processing.core.*;
 import util.OscHandler;
 
 public class DepthThresholder extends Filter {
@@ -27,7 +28,10 @@ public class DepthThresholder extends Filter {
 				// if curGrayValue is less than threshold, it is too far away. 
 				// paint black.
 				if (curGrayValue < OscHandler.depthThreshold) {
+					//OscHandler.depthThreshold
 					outputImg.pixels[index] = 0;
+				} else{
+					outputImg.pixels[index] = 0xFFFFFFFF;
 				}
 			}
 		}

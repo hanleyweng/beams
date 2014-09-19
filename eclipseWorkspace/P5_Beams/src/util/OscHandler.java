@@ -15,6 +15,12 @@ public class OscHandler {
 	public static int zaxisThreshold = 12;
 	public static int posterizeLevel = 40;
 	
+	//morphological filters
+	public static int erosionValue = 1;
+	public static int dilationValue = 1;
+	public static int openingValue = 1;
+	public static int closingValue = 1;
+	
 	public static int testInt1 = 10;
 	public static int testInt2 = 10;
 	public static float testFloat1 = .5f;
@@ -38,6 +44,10 @@ public class OscHandler {
 		oscP5.plug(this, "testInt2", "/testInt2");
 		oscP5.plug(this, "testFloat1", "/testFloat1");
 		oscP5.plug(this, "testFloat2", "/testFloat2");
+		oscP5.plug(this, "erosionValue", "/erosionValue");
+		oscP5.plug(this, "dilationValue", "/dilationValue");
+		oscP5.plug(this, "openingValue", "/openingValue");
+		oscP5.plug(this, "closingValue", "/closingValue");
 	}
 	
 	/**
@@ -67,6 +77,19 @@ public class OscHandler {
 	}	
 	private void testFloat2(float val) {
 		testFloat2 = val;
+	}
+	private void erosionValue(int val) {
+		erosionValue = val;
 	}	
+	private void dilationValue(int val) {
+		dilationValue = val;
+	}
+	private void openingValue(int val) {
+		openingValue = val;
+	}
+	private void closingValue(int val) {
+		closingValue = val;
+	}
+	
 	
 }

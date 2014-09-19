@@ -27,7 +27,8 @@ public class SlitScan extends Filter {
 		img = this.copyImage(srcImg);
 
 		int width = img.width;
-		int newHeightOfRow = OscHandler.heightOfRow;
+//		int newHeightOfRow = OscHandler.heightOfRow;
+		int newHeightOfRow = 5;
 		// if we have a newHeightOfRow,
 		// set & clear prvFrames, otherwise array out of bounds
 		if(newHeightOfRow != heightOfRow) {

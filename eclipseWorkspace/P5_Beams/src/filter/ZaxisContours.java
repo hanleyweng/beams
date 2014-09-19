@@ -31,7 +31,13 @@ public class ZaxisContours extends Filter {
 					if (curGrayValue % OscHandler.zaxisSlice < OscHandler.zaxisThreshold) {
 						int newColor = 0xff000000 | (255 << 16) | (0 << 8) | 0;
 						outputImg.pixels[index] = newColor;
+					} else {
+						// make non zaxis contours transp.
+						outputImg.pixels[index] = 0x00000000;
 					}
+				} else {
+					// make non zaxis contours transp.
+					outputImg.pixels[index] = 0x00000000;
 				}
 			}
 		}

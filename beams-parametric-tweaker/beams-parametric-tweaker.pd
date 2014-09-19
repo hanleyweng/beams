@@ -1,7 +1,7 @@
-#N canvas 356 519 1282 473 10;
+#N canvas 26 103 1280 473 10;
 #X declare -lib mrpeach;
 #X obj 34 -49 hsl 128 15 1 20 0 0 heightOfRow-slider-value empty heightOfRow
--2 -8 0 10 -262144 -1 -1 2000 1;
+-2 -8 0 10 -262144 -1 -1 0 1;
 #N canvas 717 629 385 355 osc-connection 0;
 #X obj 61 177 udpsend;
 #X obj 151 39 loadbang;
@@ -26,7 +26,7 @@
 #X obj 31 -19 int;
 #X floatatom 31 13 8 0 0 0 - - -;
 #X obj 254 -49 hsl 128 15 1 200 0 0 empty empty zaxisSlice -2 -8 0
-10 -262144 -1 -1 1700 1;
+10 -262144 -1 -1 0 1;
 #X obj 251 -19 int;
 #X floatatom 251 13 8 0 0 0 - - -;
 #X text 196 -175 click to reconnect to running app;
@@ -35,20 +35,20 @@
 #X text 29 -219 by Pier;
 #X text 30 -92 For 2D slit scan;
 #X obj 653 -50 hsl 128 15 1 255 0 0 empty empty depthThreshold -2 -8
-0 10 -262144 -1 -1 8300 1;
+0 10 -262144 -1 -1 7100 1;
 #X obj 650 -19 int;
 #X floatatom 650 13 8 0 0 0 - - -;
 #X text 648 -92 For z distance background removal;
 #X obj 650 43 osc-out depthThreshold;
 #X obj 251 43 osc-out zaxisSlice;
 #X obj 428 -50 hsl 128 15 1 30 0 0 empty empty zaxisThreshold -2 -8
-0 10 -262144 -1 -1 1400 1;
+0 10 -262144 -1 -1 0 1;
 #X obj 425 -20 int;
 #X floatatom 425 12 8 0 0 0 - - -;
 #X text 356 -92 For Kinect Zaxis;
 #X obj 425 42 osc-out zaxisThreshold;
-#X obj 918 -174 hsl 128 15 2 50 0 0 empty empty testInt1 -2 -8 0 10
--262144 -1 -1 900 1;
+#X obj 918 -174 hsl 128 15 3 50 0 0 empty empty testInt1 -2 -8 0 10
+-262144 -1 -1 0 1;
 #X obj 915 -143 int;
 #X floatatom 915 -111 8 0 0 0 - - -;
 #X text 913 -215 TESTER VALUES;
@@ -71,8 +71,29 @@
 0 10 -262144 -1 -1 0 1;
 #X obj 30 140 int;
 #X floatatom 30 172 8 0 0 0 - - -;
-#X text 32 84;
+#X text 32 84 comment;
 #X obj 30 203 osc-out posterizeLevel;
+#X obj 345 132 hsl 128 15 3 50 0 0 empty empty erosion -2 -8 0 10 -262144
+-1 -1 1400 1;
+#X obj 342 163 int;
+#X floatatom 342 195 8 0 0 0 - - -;
+#X obj 342 225 osc-out erosionValue;
+#X text 340 96 MORPHOLOGICAL FILTERS;
+#X obj 512 132 hsl 128 15 3 50 0 0 empty empty dilation -2 -8 0 10
+-262144 -1 -1 0 1;
+#X obj 509 163 int;
+#X floatatom 509 195 8 0 0 0 - - -;
+#X obj 509 225 osc-out dilationValue;
+#X obj 674 132 hsl 128 15 3 50 0 0 empty empty opening -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 671 163 int;
+#X floatatom 671 195 8 0 0 0 - - -;
+#X obj 671 225 osc-out openingValue;
+#X obj 828 131 hsl 128 15 3 50 0 0 empty empty closing -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 825 162 int;
+#X floatatom 825 194 8 0 0 0 - - -;
+#X obj 825 224 osc-out closingValue;
 #X connect 0 0 4 0;
 #X connect 2 0 1 0;
 #X connect 4 0 5 0;
@@ -99,3 +120,15 @@
 #X connect 40 0 41 0;
 #X connect 41 0 42 0;
 #X connect 42 0 44 0;
+#X connect 45 0 46 0;
+#X connect 46 0 47 0;
+#X connect 47 0 48 0;
+#X connect 50 0 51 0;
+#X connect 51 0 52 0;
+#X connect 52 0 53 0;
+#X connect 54 0 55 0;
+#X connect 55 0 56 0;
+#X connect 56 0 57 0;
+#X connect 58 0 59 0;
+#X connect 59 0 60 0;
+#X connect 60 0 61 0;
