@@ -310,6 +310,13 @@ public class Beams extends PApplet {
 
 		cam.endHUD();
 
+		// Drawing FrameRate
+		cam.beginHUD();
+		fill(255);
+		textAlign(RIGHT);
+		text(frameRate, swidth, 10);
+		cam.endHUD();
+
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
 		// this.drawMeshIn3D(depthMapSlitScanner.getFilteredMatrix(), 7);
@@ -333,7 +340,7 @@ public class Beams extends PApplet {
 			cam.reset();
 		}
 	}
-	
+
 	public int[] getMatrixWithinDepthRange(int minDepthRange, int maxDepthRange, int[] depthMatrix) {
 		int[] outputMatrix = new int[depthMatrix.length];
 
