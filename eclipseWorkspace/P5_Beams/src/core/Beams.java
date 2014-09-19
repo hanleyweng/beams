@@ -328,22 +328,11 @@ public class Beams extends PApplet {
 		return outputMatrix;
 	}
 
-	public void setDepthMatrixToImage(int[] matrix, int matrixMaxValue, PImage image) {
-		if (matrix.length != image.pixels.length) {
+	public void setMatrixAsPImage(PImage img, int[] depthValues) {
+		if (depthValues.length != img.pixels.length) {
 			System.err.println("matrix size does not match image.pixels size");
 			return;
 		}
-
-		image.loadPixels();
-		for (int i = 0; i < matrix.length; i++) {
-			int value = matrix[i];
-			value = (int) mapWithCap(value, 0, matrixMaxValue, 255, 0);
-			image.pixels[i] = 0xff000000 | (value << 16) | (value << 8) | value;
-		}
-		image.updatePixels();
-	}
-
-	public void setMatrixAsPImage(PImage img, int[] depthValues) {
 
 		int minValue = Integer.MAX_VALUE;
 		int maxValue = Integer.MIN_VALUE;
@@ -362,6 +351,11 @@ public class Beams extends PApplet {
 	}
 
 	public void setMatrixAsPImage(PImage img, int[] depthValues, int minValue, int maxValue) {
+		if (depthValues.length != img.pixels.length) {
+			System.err.println("matrix size does not match image.pixels size");
+			return;
+		}
+
 		// PImage img = new PImage(width, height); // <- this method may be inefficient, may be more efficient to pass in an existing PImage
 
 		img.loadPixels();
