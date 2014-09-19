@@ -327,47 +327,6 @@ public class Beams extends PApplet {
 		image.updatePixels();
 	}
 
-	// Note - we have two options for locationData to feed in; either realWorldPositions or depthPositions which we then compute real world positions with depthToWorld(x,y,rawDepth)
-	public void drawPointsIn3D(PVector[] realWorldPositions, int[] pixelColors) {
-		pushMatrix();
-		pushStyle();
-
-		translate(swidth / 2, sheight / 2, 0);
-		rotateX(radians(180));
-		// colorMode(HSB, 100);
-		strokeWeight(2);
-		stroke(255);
-
-		int res = 3;
-		for (int x = 0; x < kinectWidth; x += res) {
-			for (int y = 0; y < kinectHeight; y += res) {
-				int index = x + y * kinectWidth;
-				PVector realWorldPoint = realWorldPositions[index];
-
-				// Decide if we should draw point
-				if (realWorldPoint == null) { // ~
-					continue;
-				}
-				if (realWorldPoint.z == 0) { // ~
-					continue;
-				}
-
-				// Set color of point
-				if (pixelColors != null) {
-					int currColor = pixelColors[index];
-					stroke(currColor);
-				}
-
-				// Draw Point
-				point(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
-
-			}
-		}
-
-		popStyle();
-		popMatrix();
-	}
-
 	/**
 	 * Draws a point cloud from a depthMap.
 	 * 
