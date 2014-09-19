@@ -90,6 +90,67 @@ public class ContourMatrixFromDepth {
 		return outputMatrix;
 	}
 
+	public int[] getContourMatrix_linearGradient2(int[] depthMatrix, float depthLoopOffset, int frameCount) {
+		int[] outputMatrix = new int[depthMatrix.length];
+
+		int[] thresholdDepthRange = { 0, 5000 };
+
+		// Determine range of hues
+		int c1c2DepthRangeLength = 300;
+		int c1c2DepthRangeCentre_min = thresholdDepthRange[0] + c1c2DepthRangeLength / 2;
+		int c1c2DepthRangeCentre_max = thresholdDepthRange[1] - c1c2DepthRangeLength / 2;
+
+		// Determine c1c2DepthRangeCentreProgress
+		float c1c2DepthRangeCentreProgress_duration = 600; // <- loop duration
+		float c1c2DepthRangeCentreProgress_progress01 = map(frameCount % c1c2DepthRangeCentreProgress_duration, 0, c1c2DepthRangeCentreProgress_duration, 0, 1);
+		float c1c2DepthRangeCentreProgress_loop01 = (float) ((Math.cos(c1c2DepthRangeCentreProgress_progress01 * 2 * Math.PI) + 1) / 2);
+
+		float c1c2DepthRangeCentre_cur = map(c1c2DepthRangeCentreProgress_loop01, 0, 1, c1c2DepthRangeCentre_min, c1c2DepthRangeCentre_max);
+		float c1c2DepthRangeLbound = c1c2DepthRangeCentre_cur - c1c2DepthRangeLength / 2;
+		float c1c2DepthRangeRbound = c1c2DepthRangeCentre_cur + c1c2DepthRangeLength / 2;
+
+		// Hues - red and purple
+		float c1hue = 1.0f;
+		float c2hue = 0.75f;
+
+		// Vars
+		float hue = 0;
+		int color = 0;
+		float bri = 1;
+
+		for (int i = 0; i < depthMatrix.length; i++) {
+
+			float depthValue = depthMatrix[i];
+
+			if (depthValue < thresholdDepthRange[1]) {
+
+				// Set hue
+				hue = map(depthValue, c1c2DepthRangeLbound, c1c2DepthRangeRbound, c1hue, c2hue);
+				float maxHue = Math.max(c1hue, c2hue);
+				float minHue = Math.min(c1hue, c2hue);
+				if (hue > maxHue)
+					hue = maxHue;
+				if (hue < minHue)
+					hue = minHue;
+
+			} else {
+				// make it blue
+				hue = 0.3f;
+			}
+
+			// Contours
+			// int depthLoopRange = 60;
+			// float progress = ((depthValue + depthLoopOffset) % depthLoopRange) / depthLoopRange;
+			// float progressSin = (float) Math.sin(progress * 2 * Math.PI);
+			// bri = map(progressSin, -1, 1, 0, 1);
+
+			color = Color.HSBtoRGB(hue, 1.0f, bri);
+			outputMatrix[i] = color;
+		}
+
+		return outputMatrix;
+	}
+
 	static public final float map(float value, float istart, float istop, float ostart, float ostop) {
 		return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
 	}

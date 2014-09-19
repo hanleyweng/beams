@@ -273,7 +273,7 @@ public class Beams extends PApplet {
 		// frameDifferencer.updateStream(depthMap, 30);
 		// curDepthMatrix = frameDifferencer.getOutputMatrix();
 
-		curDepthMatrix = getMatrixWithinDepthRange(0, 3000, curDepthMatrix);
+		// curDepthMatrix = getMatrixWithinDepthRange(0, 3000, curDepthMatrix);
 
 		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
 		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
@@ -286,8 +286,8 @@ public class Beams extends PApplet {
 
 		// DRAW
 		background(0);
-		
-		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient(curDepthMatrix, frameCount * 5f, frameCount), 15);
+
+		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
 
 		img3d = this.get(kinectWidth / 2, 0, kinectWidth, kinectHeight);
 
@@ -314,7 +314,7 @@ public class Beams extends PApplet {
 		cam.beginHUD();
 		fill(255);
 		textAlign(RIGHT, TOP);
-		text(frameRate, swidth-20, 20);
+		text(frameRate, swidth - 20, 20);
 		cam.endHUD();
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
