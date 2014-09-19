@@ -1,6 +1,5 @@
 package core;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 import peasy.PeasyCam;
@@ -263,6 +262,8 @@ public class Beams extends PApplet {
 		// frameDifferencer.updateStream(depthMap, 30);
 		// curDepthMatrix = frameDifferencer.getOutputMatrix();
 
+		curDepthMatrix = getMatrixWithinDepthRange(0, 2000, curDepthMatrix);
+
 		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
 		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
 
@@ -281,8 +282,28 @@ public class Beams extends PApplet {
 
 		// this.drawMeshIn3D(curDepthMatrix, colorMapSlitScanner.getFilteredMatrix(), 7);
 
-		this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
+		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
 
+		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_lineVersion(curDepthMatrix, frameCount * 5f), 3);
+		// this.drawMeshIn3D(curDepthMatrix, null, 15);
+		this.drawPointsIn3D(curDepthMatrix, null, 15);
+
+	}
+
+	public int[] getMatrixWithinDepthRange(int minDepthRange, int maxDepthRange, int[] depthMatrix) {
+		int[] outputMatrix = new int[depthMatrix.length];
+
+		for (int i = 0; i < depthMatrix.length; i++) {
+			int depthValue = depthMatrix[i];
+
+			if ((depthValue < minDepthRange) || (depthValue > maxDepthRange)) {
+				depthValue = 0;
+			}
+
+			outputMatrix[i] = depthValue;
+		}
+
+		return outputMatrix;
 	}
 
 	public void setDepthMatrixToImage(int[] matrix, int matrixMaxValue, PImage image) {
