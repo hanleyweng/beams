@@ -313,8 +313,8 @@ public class Beams extends PApplet {
 		// Drawing FrameRate
 		cam.beginHUD();
 		fill(255);
-		textAlign(RIGHT);
-		text(frameRate, swidth, 10);
+		textAlign(RIGHT, TOP);
+		text(frameRate, swidth-20, 20);
 		cam.endHUD();
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
