@@ -35,7 +35,7 @@ public class MatrixSmoother {
 	public void updateStream(int[] matrix) {
 
 		// Add Matrix
-		matrices.add(0, matrix);
+		matrices.add(0, matrix.clone());
 
 		// For every pixel. Store that pixel to smootherMatrix if it isn't zero. If it is zero, try the next matrix.
 		for (int i = 0; i < matrix.length; i++) {
