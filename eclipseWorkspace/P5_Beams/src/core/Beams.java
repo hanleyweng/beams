@@ -1,6 +1,5 @@
 package core;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 import peasy.PeasyCam;
@@ -70,7 +69,7 @@ public class Beams extends PApplet {
 
 	// Input - Pre-recorded movie of kinect depth information
 	Movie mov;
-	
+
 	// OpenCV
 	OpenCV opencv;
 
@@ -104,7 +103,7 @@ public class Beams extends PApplet {
 		} else if (INPUT_MODE.equals(INPUT_MODE_MOVIE)) {
 			this.setupMovie();
 		}
-		
+
 		// setup opencv
 		opencv = new OpenCV(this, rgbCamWidth, rgbCamHeight);
 		if (RECEIVE_OSC) {
@@ -264,13 +263,15 @@ public class Beams extends PApplet {
 		// PImage colorImg = kinect.rgbImage();
 
 		// UPDATE FILTERS
-//		int[] curDepthMatrix = depthMap;
+		int[] curDepthMatrix = depthMap;
 
-		 frameDifferencer.updateStream(depthMap, 30);
+		// frameDifferencer.updateStream(depthMap, 30);
 		// curDepthMatrix = frameDifferencer.getOutputMatrix();
+		
+		curDepthMatrix = getMatrixWithinDepthRange(0, 2000, curDepthMatrix);
 
-//		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
-//		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
+		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
+		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
 
 		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
@@ -286,11 +287,29 @@ public class Beams extends PApplet {
 		// this.drawMeshIn3D(curDepthMatrix, 3);
 
 		// this.drawMeshIn3D(curDepthMatrix, colorMapSlitScanner.getFilteredMatrix(), 7);
-		
-		this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 3);
 
-//		this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
+		// this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 3);
 
+		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
+
+		this.drawPointsIn3D(curDepthMatrix, null, 3);
+
+	}
+
+	public int[] getMatrixWithinDepthRange(int minDepthRange, int maxDepthRange, int[] depthMatrix) {
+		int[] outputMatrix = new int[depthMatrix.length];
+
+		for (int i = 0; i < depthMatrix.length; i++) {
+			int depthValue = depthMatrix[i];
+
+			if ((depthValue < minDepthRange) || (depthValue > maxDepthRange)) {
+				depthValue = 0;
+			}
+
+			outputMatrix[i] = depthValue;
+		}
+
+		return outputMatrix;
 	}
 
 	public void setDepthMatrixToImage(int[] matrix, int matrixMaxValue, PImage image) {
