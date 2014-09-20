@@ -19,6 +19,8 @@ public class OscHandler {
 	public static int testInt2 = 10;
 	public static float testFloat1 = .5f;
 	public static float testFloat2 = .5f;
+	public static float testFloat3 = .5f;
+	public static float testFloat4 = .5f;
 	
 	public OscHandler() {
 		oscP5 = new OscP5(this, 12345);
@@ -38,6 +40,8 @@ public class OscHandler {
 		oscP5.plug(this, "testInt2", "/testInt2");
 		oscP5.plug(this, "testFloat1", "/testFloat1");
 		oscP5.plug(this, "testFloat2", "/testFloat2");
+		oscP5.plug(this, "testFloat3", "/testFloat3");
+		oscP5.plug(this, "testFloat4", "/testFloat4");
 	}
 	
 	/**
@@ -67,6 +71,12 @@ public class OscHandler {
 	}	
 	private void testFloat2(float val) {
 		testFloat2 = val;
+	}	
+	private void testFloat3(float val) {
+		testFloat3 = val;
+	}	
+	private void testFloat4(float val) {
+		testFloat4 = val;
 	}	
 	
 }

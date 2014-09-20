@@ -221,6 +221,7 @@ public class Beams extends PApplet {
 		// DRAW FOR KINECT CAMERA
 		if (INPUT_MODE.equals(INPUT_MODE_KINECT)) {
 			this.drawForKinect();
+			outputImg = get();
 		}
 
 		// DRAW FOR MOVIE
@@ -282,7 +283,7 @@ public class Beams extends PApplet {
 		// DRAW
 		background(0);
 
-		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
+//		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
@@ -296,7 +297,7 @@ public class Beams extends PApplet {
 
 		// this.drawPointsIn3D(frameDifferencer.getOutputMatrix(), null, 3);
 
-		// this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_rainbowVersion(curDepthMatrix, frameCount * 5f), 3); //<- be careful of using frameCount here in case it exceeds maximum value
+		this.drawMeshIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient(curDepthMatrix, 0), 3);
 
 		// this.drawPointsIn3D(curDepthMatrix, null, 10);
 

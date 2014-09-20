@@ -1,0 +1,75 @@
+#N canvas 106 497 621 551 10;
+#X declare -lib mrpeach;
+#N canvas 717 629 385 355 osc-connection 0;
+#X obj 61 177 udpsend;
+#X obj 151 39 loadbang;
+#X msg 142 120 disconnect;
+#X obj 57 107 packOSC;
+#X obj 59 229 tgl 15 0 empty empty connected 17 7 0 10 -262144 -1 -1
+1 1;
+#X obj 57 74 r toOSC;
+#X msg 143 88 connect 127.0.0.1 12345;
+#X obj 44 15 import mrpeach;
+#X obj 211 39 inlet;
+#X connect 0 0 4 0;
+#X connect 1 0 6 0;
+#X connect 2 0 0 0;
+#X connect 3 0 0 0;
+#X connect 5 0 3 0;
+#X connect 6 0 0 0;
+#X connect 8 0 6 0;
+#X restore 30 -132 pd osc-connection;
+#X msg 30 -174 bang establish connection;
+#X text 196 -175 click to reconnect to running app;
+#X text 29 -235 Parametric Tweaker for the Chippendale BEAMS Festival
+2014;
+#X text 29 -219 by Pier;
+#X obj 255 -93 hsl 128 15 4 16 0 0 empty empty testInt1 -2 -8 0 10
+-262144 -1 -1 12700 1;
+#X obj 251 -64 int;
+#X floatatom 251 -32 8 0 0 0 - - -;
+#X obj 251 -2 osc-out testInt1;
+#X obj 411 -95 hsl 128 15 0 6000 0 0 empty empty testInt2 -2 -8 0 10
+-262144 -1 -1 2100 1;
+#X obj 408 -64 int;
+#X floatatom 408 -32 8 0 0 0 - - -;
+#X obj 408 -2 osc-out testInt2;
+#X obj 252 63 hsl 140 15 0 1 0 0 empty empty testFloat1 -2 -8 0 10
+-262144 -1 -1 5700 1;
+#X floatatom 249 91 8 0 0 0 - - -;
+#X obj 426 62 hsl 140 15 0 1 0 0 empty empty testFloat2 -2 -8 0 10
+-262144 -1 -1 4500 1;
+#X floatatom 423 89 8 0 0 0 - - -;
+#X obj 249 125 osc-out testFloat1;
+#X obj 423 123 osc-out testFloat2;
+#X text 493 -152;
+#X obj 252 184 hsl 140 15 0 1 0 0 empty empty testFloat3 -2 -8 0 10
+-262144 -1 -1 7200 1;
+#X floatatom 249 210 8 0 0 0 - - -;
+#X obj 426 183 hsl 140 15 0 1 0 0 empty empty testFloat4 -2 -8 0 10
+-262144 -1 -1 0 1;
+#X floatatom 423 210 8 0 0 0 - - -;
+#X obj 249 246 osc-out testFloat3;
+#X obj 423 244 osc-out testFloat4;
+#X text 610 -197;
+#X text 169 -131 Play with sin wave;
+#X text 397 -132 Threshold depth range;
+#X text 183 29 foreground Colour 1;
+#X text 394 26 to foreground Colour 2;
+#X text 147 151 Background Colour;
+#X text 117 173 cobalt 0.726619;
+#X connect 1 0 0 0;
+#X connect 5 0 6 0;
+#X connect 6 0 7 0;
+#X connect 7 0 8 0;
+#X connect 9 0 10 0;
+#X connect 10 0 11 0;
+#X connect 11 0 12 0;
+#X connect 13 0 14 0;
+#X connect 14 0 17 0;
+#X connect 15 0 16 0;
+#X connect 16 0 18 0;
+#X connect 20 0 21 0;
+#X connect 21 0 24 0;
+#X connect 22 0 23 0;
+#X connect 23 0 25 0;
