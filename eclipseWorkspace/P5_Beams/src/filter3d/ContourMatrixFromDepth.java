@@ -45,47 +45,43 @@ public class ContourMatrixFromDepth {
 		return outputMatrix;
 	}
 
-	
-	
 	public int[] getContourMatrix_linearGradient(int[] depthMatrix, float depthLoopOffset) {
 		int[] outputMatrix = new int[depthMatrix.length];
 
 		for (int i = 0; i < depthMatrix.length; i++) {
 
 			float depthValue = depthMatrix[i];
-			
+
 			float hue = 0;
 			int color = 0;
-			
+
 			int thresholdDepthLevel = OscHandler.testInt2;
-			
+
 			if (depthValue < thresholdDepthLevel) {
 				// make it red-to-purple
 				float hueRed = 1.0f;
 				float huePurple = 0.8f;
-				
-				hue = map(depthValue,0,thresholdDepthLevel, OscHandler.testFloat1, OscHandler.testFloat2);
+
+				hue = map(depthValue, 0, thresholdDepthLevel, OscHandler.testFloat1, OscHandler.testFloat2);
 			} else {
 				// this is the background color
 				// cobalt blue: 0.726619
 				float cobalt = 0.726619f;
 				hue = OscHandler.testFloat3;
 			}
-			
+
 			int depthLoopRange = 60;
 			float progress = ((depthValue + depthLoopOffset) % depthLoopRange) / depthLoopRange;
-			float progressSin = (float) Math.sin(progress * OscHandler.testInt2 * Math.PI);
+			float progressSin = (float) Math.sin(progress * OscHandler.testInt1 * Math.PI);
 			float bri = map(progressSin, -1, 1, 0, 1);
 			color = Color.HSBtoRGB(hue, 1.0f, bri);
-			
+
 			outputMatrix[i] = color;
 		}
 
 		return outputMatrix;
 	}
-	
-	
-	
+
 	public int[] getContourMatrix_linearGradient1b(int[] depthMatrix, float depthLoopOffset, int frameCount) {
 		int[] outputMatrix = new int[depthMatrix.length];
 

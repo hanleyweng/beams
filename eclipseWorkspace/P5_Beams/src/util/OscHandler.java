@@ -21,6 +21,7 @@ public class OscHandler {
 	public static float testFloat2 = .5f;
 	public static float testFloat3 = .5f;
 	public static float testFloat4 = .5f;
+	public static int depthRangeCut;
 	
 	public OscHandler() {
 		oscP5 = new OscP5(this, 12345);
@@ -42,6 +43,7 @@ public class OscHandler {
 		oscP5.plug(this, "testFloat2", "/testFloat2");
 		oscP5.plug(this, "testFloat3", "/testFloat3");
 		oscP5.plug(this, "testFloat4", "/testFloat4");
+		oscP5.plug(this, "depthRangeCut", "/depthRangeCut");
 	}
 	
 	/**
@@ -77,6 +79,9 @@ public class OscHandler {
 	}	
 	private void testFloat4(float val) {
 		testFloat4 = val;
+	}	
+	private void depthRangeCut(int val) {
+		depthRangeCut = val;
 	}	
 	
 }

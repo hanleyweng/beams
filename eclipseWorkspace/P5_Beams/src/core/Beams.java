@@ -148,7 +148,7 @@ public class Beams extends PApplet {
 			return;
 		}
 		// mirror is by default enabled
-		kinect.setMirror(true);
+		kinect.setMirror(false);
 
 		// enable depthMap generation
 		kinect.enableDepth();
@@ -269,7 +269,9 @@ public class Beams extends PApplet {
 		// frameDifferencer.updateStream(depthMap, 30);
 		// curDepthMatrix = frameDifferencer.getOutputMatrix();
 
-		// curDepthMatrix = getMatrixWithinDepthRange(0, 3000, curDepthMatrix);
+		int minDepthRangeCut = 0;
+		int maxDepthRangeCut = OscHandler.depthRangeCut; //<-----
+		curDepthMatrix = getMatrixWithinDepthRange(minDepthRangeCut, maxDepthRangeCut, curDepthMatrix);
 
 		depthMapSlitScanner.updateStream(curDepthMatrix, 20);
 		curDepthMatrix = depthMapSlitScanner.getFilteredMatrix();
@@ -277,13 +279,13 @@ public class Beams extends PApplet {
 		// colorMapSlitScanner.updateStream(colorImg.pixels, 20);
 
 		// Background Image Update
-		int[] bgDepthMatrix = depthMap;
-		bgDepthMatrix = getMatrixWithinDepthRange(3000, 5000, bgDepthMatrix);
+		// int[] bgDepthMatrix = depthMap;
+		// bgDepthMatrix = getMatrixWithinDepthRange(3000, 5000, bgDepthMatrix);
 
 		// DRAW
 		background(0);
 
-//		this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
+		// this.drawPointsIn3D(curDepthMatrix, contourMatrixer.getContourMatrix_linearGradient2(curDepthMatrix, frameCount * 5f, frameCount), 15);
 
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), null, 40);
 		// this.drawPointsIn3D(depthMapSlitScanner.getFilteredMatrix(), colorMapSlitScanner.getFilteredMatrix());
